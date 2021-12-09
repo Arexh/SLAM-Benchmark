@@ -40,6 +40,7 @@ add_library(SLAMBenchmarkLibs SHARED
     src/Utility.cpp
     src/SystemInfoManager.cpp
     src/SystemInfo.cpp
+    src/Meter.cpp
     )
 
 target_link_libraries(SLAMBenchmarkLibs)
