@@ -1,6 +1,6 @@
 #pragma once
 
-#include "TimeMeter.h"
+#include "Meter.h"
 
 #include <stdio.h>
 #include <string>
@@ -23,21 +23,26 @@ namespace SLAM_Benchmark
     {
         string thread_name;
         uint64_t start_time;
-        TimeMeter time_meter;
+        Meter<uint64_t> time_meter;
     };
 
-    class SLAMSystem
+    class SystemRecorder
     {
     private:
+        uint64_t start_time;
         SystemName m_system_name;
         map<string, SystemThread> m_thread_map;
 
     public:
-        SLAMSystem(SystemName system_name) : m_system_name(system_name) {}
+        SystemRecorder(SystemName system_name) : m_system_name(system_name) {}
 
-        ~SLAMSystem();
+        ~SystemRecorder();
 
         void registerThread(const string thread_name);
+
+        void startSystemRecord();
+
+        void stopSystemRecord();
 
         void startThreadRecord(const string thread_name);
 
