@@ -1,4 +1,5 @@
 #pragma once
+
 #include <chrono>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -14,6 +15,8 @@ namespace SLAM_Benchmark
     class Utility
     {
     public:
+        static std::atomic_bool thread_flag;
+
         static uint64_t getCurrentMillisecond();
 
         static bool checkIfFileExists(const std::string &file_name);
@@ -21,10 +24,16 @@ namespace SLAM_Benchmark
         static int readFileContentInt(const std::string &file_name);
 
         static void timedTask(const uint32_t interval,
-                              const bool &flag,
                               const std::function<void()> callback);
 
         static double simpleComputationTask(unsigned long long loops);
+        /*
+            struct timespec {
+               time_t   tv_sec;        / seconds
+               long     tv_nsec;       // nanoseconds
+           };
+        */
+        static struct timespec getThreadTime();
     };
 
     inline uint64_t Utility::getCurrentMillisecond()

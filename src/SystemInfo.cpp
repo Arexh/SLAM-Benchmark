@@ -1,6 +1,10 @@
 #include "SystemInfo.h"
 #include "Utility.h"
 
+int parseLine(char *line);
+
+int readPowerFromFile(const std::string &file_name);
+
 namespace SLAM_Benchmark
 {
     // copy from: https://inaj012.medium.com/nvidia-jetson-nano-xavier-power-monitoring-62d374e9dc81
@@ -117,28 +121,28 @@ namespace SLAM_Benchmark
 
         return total_power;
     }
+}
 
-    int SystemInfo::readPowerFromFile(const std::string &file_name)
+int readPowerFromFile(const std::string &file_name)
+{
+    if (SLAM_Benchmark::Utility::checkIfFileExists(file_name))
     {
-        if (Utility::checkIfFileExists(file_name))
-        {
-            return Utility::readFileContentInt(file_name);
-        }
-        else
-        {
-            return -1;
-        }
+        return SLAM_Benchmark::Utility::readFileContentInt(file_name);
     }
+    else
+    {
+        return -1;
+    }
+}
 
-    int SystemInfo::parseLine(char *line)
-    {
-        // This assumes that a digit will be found and the line ends in " Kb".
-        int i = strlen(line);
-        const char *p = line;
-        while (*p < '0' || *p > '9')
-            p++;
-        line[i - 3] = '\0';
-        i = atoi(p);
-        return i;
-    }
+int parseLine(char *line)
+{
+    // This assumes that a digit will be found and the line ends in " Kb".
+    int i = strlen(line);
+    const char *p = line;
+    while (*p < '0' || *p > '9')
+        p++;
+    line[i - 3] = '\0';
+    i = atoi(p);
+    return i;
 }

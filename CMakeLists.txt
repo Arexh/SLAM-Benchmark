@@ -7,27 +7,6 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wall -g")
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
-# # find python package - start
-# # copy from: https://github.com/lava/matplotlib-cpp/blob/master/CMakeLists.txt
-# find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
-# target_link_libraries(matplotlib_cpp INTERFACE
-#   Python3::Python
-#   Python3::Module
-# )
-# find_package(Python3 COMPONENTS NumPy)
-# if(Python3_NumPy_FOUND)
-#   target_link_libraries(matplotlib_cpp INTERFACE
-#     Python3::NumPy
-#   )
-# else()
-#   target_compile_definitions(matplotlib_cpp INTERFACE WITHOUT_NUMPY)
-# endif()
-# install(
-#   TARGETS matplotlib_cpp
-#   EXPORT install_targets
-# )
-# # find python package - end
-
 include_directories(
   ${PROJECT_SOURCE_DIR}/include
   matplotlib-cpp/
@@ -36,18 +15,24 @@ include_directories(
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 
-add_library(SLAMBenchmarkLibs SHARED
+add_library(SLAMBenchmarkLib SHARED
     src/Utility.cpp
     src/SystemInfoManager.cpp
     src/SystemInfo.cpp
-    src/Meter.cpp
     )
 
-target_link_libraries(SLAMBenchmarkLibs)
+target_link_libraries(SLAMBenchmarkLib)
 
 add_executable(systemInfoSummary test/SystemInfoSummary.cpp)
 
 target_link_libraries(systemInfoSummary 
-  SLAMBenchmarkLibs
+  SLAMBenchmarkLib
+  -lpthread
+  -lpython2.7)
+
+add_executable(testSystemInfoManager test/TestSystemInfoManager.cpp)
+
+target_link_libraries(testSystemInfoManager 
+  SLAMBenchmarkLib
   -lpthread
   -lpython2.7)

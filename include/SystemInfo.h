@@ -1,3 +1,5 @@
+#pragma once
+
 #include "sys/times.h"
 #include "sys/vtimes.h"
 #include "string.h"
@@ -38,11 +40,6 @@ namespace SLAM_Benchmark
         static int getCurrentSOCPower();
         // Current total power (in mW, only available in Jetson board)
         static int getCurrentTotalPower();
-
-    private:
-        static int parseLine(char *line);
-
-        static int readPowerFromFile(const std::string &file_name);
     };
 
 }

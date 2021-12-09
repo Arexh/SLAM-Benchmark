@@ -11,7 +11,6 @@ using namespace std;
 
 namespace SLAM_Benchmark
 {
-
     enum SystemName
     {
         ORB_SLAM2,
@@ -30,6 +29,7 @@ namespace SLAM_Benchmark
     {
     private:
         uint64_t start_time;
+        uint64_t end_time;
         SystemName m_system_name;
         map<string, SystemThread> m_thread_map;
 
@@ -48,5 +48,4 @@ namespace SLAM_Benchmark
 
         void stopThreadRecord(const string thread_name);
     };
-
 }
