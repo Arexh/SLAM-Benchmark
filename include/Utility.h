@@ -5,6 +5,9 @@
 #include <string>
 #include <stdlib.h>
 #include <fstream>
+#include <chrono>
+#include <boost/asio.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 namespace SLAM_Benchmark
 {
@@ -16,6 +19,12 @@ namespace SLAM_Benchmark
         static bool checkIfFileExists(const std::string &file_name);
 
         static int readFileContentInt(const std::string &file_name);
+
+        static void timedTask(const uint32_t interval,
+                              const bool &flag,
+                              const std::function<void()> callback);
+
+        static double simpleComputationTask(unsigned long long loops);
     };
 
     inline uint64_t Utility::getCurrentMillisecond()

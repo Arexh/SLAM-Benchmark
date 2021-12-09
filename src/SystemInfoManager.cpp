@@ -1,4 +1,5 @@
 #include "SystemInfoManager.h"
+#include "Utility.h"
 
 #include <chrono>
 #include <thread>
@@ -8,12 +9,12 @@
 
 using namespace std;
 
+void printWhetherAvailable(const std::string &info, const double val);
+
+double simpleBenchmark();
+
 namespace SLAM_Benchmark
 {
-
-    void printWhetherAvailable(const std::string &info, const double val);
-    
-    double simpleBenchmark();
 
     void SystemInfoManager::printAvailableInfoSummary()
     {
@@ -32,32 +33,28 @@ namespace SLAM_Benchmark
         cout << "-----------------------------------------------------" << endl;
     }
 
-    // copy from: https://stackoverflow.com/questions/35525543/multithread-program-in-c-shows-the-same-performance-as-a-serial-one
-    double SystemInfoManager::simpleComputationTask(unsigned long long loops)
+    void SystemInfoManager::verboseCurrentSystemInfo()
     {
-        volatile double x;
-        for (unsigned long long i = 0; i < loops; i++)
-        {
-            x = sin(sqrt(i) / i * 3.14159);
-        }
-        return x;
+        std::cout << "CPU usage: " << SystemInfo::getCurrentProcessCPUPercent() << "%, "
+            << "Physical Memory usage: " << SystemInfo::getCurrentProcessPhysicalMemoryUsed() << "KB, "
+            << "Virtual Memory usage: " << SystemInfo::getCurrentProcessVirtualMemoryUsed()
+            << "KB" << std::endl;
     }
+}
 
-    double simpleBenchmark()
-    {
-        // run a simple task (multi-threads), return the cpu percent used in this process
-        SystemInfo::init();
-        std::vector<std::thread> threads;
-        for (int i = 0; i < SystemInfo::processor_num; i++)
-            threads.push_back(std::thread(SystemInfoManager::simpleComputationTask, 100000000));
-        for (auto &th : threads)
-            th.join();
-        return SystemInfo::getCurrentProcessCPUPercent();
-    }
+double simpleBenchmark()
+{
+    // run a simple task (multi-threads), return the cpu percent used in this process
+    SLAM_Benchmark::SystemInfo::init();
+    std::vector<std::thread> threads;
+    for (int i = 0; i < SLAM_Benchmark::SystemInfo::processor_num; i++)
+        threads.push_back(std::thread(SLAM_Benchmark::Utility::simpleComputationTask, 100000000));
+    for (auto &th : threads)
+        th.join();
+    return SLAM_Benchmark::SystemInfo::getCurrentProcessCPUPercent();
+}
 
-    inline void printWhetherAvailable(const std::string &info, const double val)
-    {
-        cout << info << (val <= 0 ? "Unavailable" : "Available") << " (current value: " << val << ")" << endl;
-    }
-
+inline void printWhetherAvailable(const std::string &info, const double val)
+{
+    cout << info << (val <= 0 ? "Unavailable" : "Available") << " (current value: " << val << ")" << endl;
 }

@@ -36,7 +36,8 @@ include_directories(
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 
-add_library(SLAMBenchmarkLibs
+add_library(SLAMBenchmarkLibs SHARED
+    src/Utility.cpp
     src/SystemInfoManager.cpp
     src/SystemInfo.cpp
     )

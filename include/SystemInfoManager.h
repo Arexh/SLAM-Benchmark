@@ -12,6 +12,6 @@ namespace SLAM_Benchmark
 
         static void stopMonitor();
 
-        static double simpleComputationTask(unsigned long long loops);
+        static void verboseCurrentSystemInfo();
     };
 }
