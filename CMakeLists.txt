@@ -7,6 +7,19 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wall -g")
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
+# ---------------- include nlohmann_json ----------------
+# disable JSON library's tests
+set(JSON_BuildTests
+    OFF
+    CACHE INTERNAL "")
+# include as PRIVATE source files, no install
+set(JSON_Install
+    OFF
+    CACHE INTERNAL "")
+# specify the directory
+add_subdirectory(third_party/nlohmann_json)
+# ---------------- include nlohmann_json ----------------
+
 include_directories(${PROJECT_SOURCE_DIR}/include third_party/matplotlib-cpp/)
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
@@ -25,3 +38,9 @@ add_executable(testSystemInfoManager test/TestSystemInfoManager.cpp)
 
 target_link_libraries(testSystemInfoManager SLAMBenchmarkLib -lpthread
                       -lpython2.7)
+
+target_link_libraries(testSystemInfoManager PRIVATE nlohmann_json::nlohmann_json)
+
+add_executable(testJSON test/TestJSON.cpp)
+
+target_link_libraries(testJSON PRIVATE nlohmann_json::nlohmann_json)
