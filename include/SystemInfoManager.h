@@ -21,12 +21,12 @@ namespace SLAM_Benchmark
     class SystemInfoManager
     {
     private:
-        static SystemInfoRecord* history_record;
-        static std::thread record_thread;
-        static std::atomic_bool thread_flag;
-        static bool cpu_power_available;
-        static bool gpu_power_available;
-        static bool soc_power_available;
+        static SystemInfoRecord* m_history_record;
+        static std::thread m_record_thread;
+        static std::atomic_bool m_thread_flag;
+        static bool m_cpu_power_available;
+        static bool m_gpu_power_available;
+        static bool m_soc_power_available;
 
         static void recordInfo();
 
@@ -39,5 +39,10 @@ namespace SLAM_Benchmark
 
         static struct SystemInfoRecord* stopMonitor();
 
+        static bool isCPUPowerAvailable();
+
+        static bool isGPUPowerAvailable();
+
+        static bool isSOCPowerAvailable();
     };
 }

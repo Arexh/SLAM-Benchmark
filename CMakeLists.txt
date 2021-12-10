@@ -20,19 +20,21 @@ set(JSON_Install
 add_subdirectory(third_party/nlohmann_json)
 # ---------------- include nlohmann_json ----------------
 
-include_directories(${PROJECT_SOURCE_DIR}/include third_party/matplotlib-cpp/)
+include_directories(${PROJECT_SOURCE_DIR}/include third_party/matplotlib-cpp/ third_party/nlohmann_json/include)
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 
 add_library(SLAMBenchmarkLib SHARED src/Utility.cpp src/SystemInfoManager.cpp
-                                    src/SystemInfo.cpp)
+                                    src/SystemInfo.cpp src/SystemRecorder.cpp)
 
 target_link_libraries(SLAMBenchmarkLib)
 
 add_executable(systemInfoSummary test/SystemInfoSummary.cpp)
 
 target_link_libraries(systemInfoSummary SLAMBenchmarkLib -lpthread -lpython2.7)
+
+target_link_libraries(systemInfoSummary PRIVATE nlohmann_json::nlohmann_json)
 
 add_executable(testSystemInfoManager test/TestSystemInfoManager.cpp)
 
@@ -44,3 +46,10 @@ target_link_libraries(testSystemInfoManager PRIVATE nlohmann_json::nlohmann_json
 add_executable(testJSON test/TestJSON.cpp)
 
 target_link_libraries(testJSON PRIVATE nlohmann_json::nlohmann_json)
+
+add_executable(testSystemRecorder test/TestSystemRecorder.cpp)
+
+target_link_libraries(testSystemRecorder SLAMBenchmarkLib -lpthread
+                      -lpython2.7)
+
+target_link_libraries(testSystemRecorder PRIVATE nlohmann_json::nlohmann_json)

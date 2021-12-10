@@ -15,17 +15,17 @@ double simpleBenchmark();
 
 namespace SLAM_Benchmark
 {
-    struct SystemInfoRecord* SystemInfoManager::history_record;
-    
-    thread SystemInfoManager::record_thread;
+    struct SystemInfoRecord *SystemInfoManager::m_history_record;
 
-    atomic_bool SystemInfoManager::thread_flag;
-    
-    bool SystemInfoManager::cpu_power_available = SystemInfo::getCurrentCPUPower() != -1;
+    thread SystemInfoManager::m_record_thread;
 
-    bool SystemInfoManager::gpu_power_available = SystemInfo::getCurrentGPUPower() != -1;
+    atomic_bool SystemInfoManager::m_thread_flag;
 
-    bool SystemInfoManager::soc_power_available = SystemInfo::getCurrentSOCPower() != -1;
+    bool SystemInfoManager::m_cpu_power_available = SystemInfo::getCurrentCPUPower() != -1;
+
+    bool SystemInfoManager::m_gpu_power_available = SystemInfo::getCurrentGPUPower() != -1;
+
+    bool SystemInfoManager::m_soc_power_available = SystemInfo::getCurrentSOCPower() != -1;
 
     void SystemInfoManager::printAvailableInfoSummary()
     {
@@ -48,37 +48,52 @@ namespace SLAM_Benchmark
     void SystemInfoManager::verboseCurrentSystemInfo()
     {
         std::cout << "CPU usage: " << SystemInfo::getCurrentProcessCPUPercent() << "%, "
-            << "Physical Memory usage: " << SystemInfo::getCurrentProcessPhysicalMemoryUsed() << "KB, "
-            << "Virtual Memory usage: " << SystemInfo::getCurrentProcessVirtualMemoryUsed()
-            << "KB" << std::endl;
+                  << "Physical Memory usage: " << SystemInfo::getCurrentProcessPhysicalMemoryUsed() << "KB, "
+                  << "Virtual Memory usage: " << SystemInfo::getCurrentProcessVirtualMemoryUsed()
+                  << "KB" << std::endl;
     }
 
     void SystemInfoManager::startMonitor(const uint32_t interval)
     {
-        history_record = new SystemInfoRecord;
+        m_history_record = new SystemInfoRecord;
         Utility::thread_flag = true;
         SystemInfo::init();
-        record_thread = thread(Utility::timedTask, 100, recordInfo);
+        m_record_thread = thread(Utility::timedTask, 100, recordInfo);
     }
 
-    struct SystemInfoRecord* SystemInfoManager::stopMonitor()
+    struct SystemInfoRecord *SystemInfoManager::stopMonitor()
     {
         Utility::thread_flag = false;
-        record_thread.join();
-        return history_record;
+        m_record_thread.join();
+        return m_history_record;
     }
 
     void SystemInfoManager::recordInfo()
     {
-        history_record->cpu_percent_meter.update(SystemInfo::getCurrentProcessCPUPercent());
-        history_record->virtual_memory_meter.update(SystemInfo::getCurrentProcessVirtualMemoryUsed());
-        history_record->physical_memory_meter.update(SystemInfo::getCurrentProcessPhysicalMemoryUsed());
-        if (cpu_power_available)
-            history_record->cpu_power_meter.update(SystemInfo::getCurrentCPUPower());
-        if (gpu_power_available)
-            history_record->gpu_power_meter.update(SystemInfo::getCurrentGPUPower());
-        if (soc_power_available)
-            history_record->soc_power_meter.update(SystemInfo::getCurrentSOCPower());
+        m_history_record->cpu_percent_meter.update(SystemInfo::getCurrentProcessCPUPercent());
+        m_history_record->virtual_memory_meter.update(SystemInfo::getCurrentProcessVirtualMemoryUsed());
+        m_history_record->physical_memory_meter.update(SystemInfo::getCurrentProcessPhysicalMemoryUsed());
+        if (m_cpu_power_available)
+            m_history_record->cpu_power_meter.update(SystemInfo::getCurrentCPUPower());
+        if (m_gpu_power_available)
+            m_history_record->gpu_power_meter.update(SystemInfo::getCurrentGPUPower());
+        if (m_soc_power_available)
+            m_history_record->soc_power_meter.update(SystemInfo::getCurrentSOCPower());
+    }
+
+    bool SystemInfoManager::isCPUPowerAvailable()
+    {
+        return m_cpu_power_available;
+    }
+
+    bool SystemInfoManager::isGPUPowerAvailable()
+    {
+        return m_gpu_power_available;
+    }
+
+    bool SystemInfoManager::isSOCPowerAvailable()
+    {
+        return m_soc_power_available;
     }
 }
 

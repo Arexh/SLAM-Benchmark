@@ -1,8 +1,10 @@
 #pragma once
 
 #include "SystemInfoManager.h"
+#include "EnumToString.h"
 #include "Meter.h"
 
+#include <nlohmann/json.hpp>
 #include <stdio.h>
 #include <string>
 #include <vector>
@@ -12,12 +14,7 @@ using namespace std;
 
 namespace SLAM_Benchmark
 {
-    enum SystemName
-    {
-        ORB_SLAM2,
-        ORB_SLAM3,
-        VINS_MONO
-    };
+    DEFINE_ENUM_WITH_STRING_CONVERSIONS(SystemName, (ORB_SLAM2)(ORB_SLAM3)(VINS_MONO));
 
     struct SystemThread
     {
@@ -39,13 +36,11 @@ namespace SLAM_Benchmark
         struct SystemInfoRecord *m_info_record;
 
     public:
-        SystemRecorder(SystemName system_name) : m_system_name(system_name),
-                                                 m_start_time(0),
+        SystemRecorder(SystemName system_name) : m_start_time(0),
                                                  m_end_time(0),
+                                                 m_system_name(system_name),
                                                  m_thread_map({}),
-                                                 m_info_record({}) {}
-
-        ~SystemRecorder();
+                                                 m_info_record() {}
 
         void registerThread(const string thread_name);
 
@@ -61,6 +56,6 @@ namespace SLAM_Benchmark
 
         void recordThreadProcessStop(const string thread_name);
 
-        
+        nlohmann::ordered_json summary();
     };
 }

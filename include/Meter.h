@@ -4,6 +4,7 @@
 #include <vector>
 #include <cstdint>
 #include <math.h>
+#include <nlohmann/json.hpp>
 
 using namespace std;
 
@@ -35,9 +36,11 @@ namespace SLAM_Benchmark
         vector<T> getValueList();
 
         void update(const T val);
+
+        nlohmann::json summaryStatistics(const string &prefix = "");
     };
 
-     template <class T>
+    template <class T>
     void Meter<T>::update(const T val)
     {
         m_list.push_back(val);
@@ -92,5 +95,16 @@ namespace SLAM_Benchmark
     vector<T> Meter<T>::getValueList()
     {
         return m_list;
+    }
+
+    template <class T>
+    nlohmann::json Meter<T>::summaryStatistics(const string &prefix)
+    {
+        return {
+            {"min", getMin()},
+            {"max", getMax()},
+            {"avg", getMean()},
+            {"std", getStd()},
+        };
     }
 }
