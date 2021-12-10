@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SystemInfoManager.h"
+#include "ThreadRecorder.h"
 #include "EnumToString.h"
 #include "Meter.h"
 
@@ -16,23 +17,13 @@ namespace SLAM_Benchmark
 {
     DEFINE_ENUM_WITH_STRING_CONVERSIONS(SystemName, (ORB_SLAM2)(ORB_SLAM3)(VINS_MONO));
 
-    struct SystemThread
-    {
-        string thread_name;
-        uint64_t start_time;
-        uint64_t end_time;
-        uint64_t temp_time;
-        uint64_t thread_time;
-        Meter<uint64_t> time_meter;
-    };
-
     class SystemRecorder
     {
     private:
         uint64_t m_start_time;
         uint64_t m_end_time;
         SystemName m_system_name;
-        map<string, SystemThread> m_thread_map;
+        map<string, ThreadRecorder*> m_thread_map;
         struct SystemInfoRecord *m_info_record;
 
     public:
@@ -42,19 +33,13 @@ namespace SLAM_Benchmark
                                                  m_thread_map({}),
                                                  m_info_record() {}
 
-        void registerThread(const string thread_name);
+        ~SystemRecorder();
 
         void recordSystemStart();
 
         void recordSystemStop();
 
-        void recordThreadCreate(const string thread_name);
-
-        void recordThreadDestory(const string thread_name);
-
-        void recordThreadProcessStart(const string thread_name);
-
-        void recordThreadProcessStop(const string thread_name);
+        void addThreadRecord(ThreadRecorder* thread_recorder);
 
         nlohmann::ordered_json summary();
     };

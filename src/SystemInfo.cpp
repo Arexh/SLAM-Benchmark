@@ -51,7 +51,7 @@ namespace SLAM_Benchmark
         last_sys_cpu = time_sample.tms_stime;
         last_user_cpu = time_sample.tms_utime;
 
-        return percent;
+        return Utility::roundDecimal(percent, 2);
     }
 
     int SystemInfo::getCurrentProcessVirtualMemoryUsed()

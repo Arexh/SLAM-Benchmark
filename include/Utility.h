@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <fstream>
 #include <chrono>
+#include <cmath>
 #include <boost/asio.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
@@ -34,6 +35,9 @@ namespace SLAM_Benchmark
            };
         */
         static struct timespec getThreadTime();
+        
+        template <class T>
+        static T roundDecimal(T number, int decimalVal);
     };
 
     inline uint64_t Utility::getCurrentMillisecond()
@@ -57,5 +61,13 @@ namespace SLAM_Benchmark
         file_stream >> str;
         file_stream.close();
         return atoi(str.c_str());
+    }
+
+    template <class T>
+    T Utility::roundDecimal(T number, int decimalVal)
+    {
+        double powerOfTen = pow(10, decimalVal);
+        T value = (long)(number * powerOfTen + .5);
+        return (T) value / powerOfTen;
     }
 }

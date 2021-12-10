@@ -37,7 +37,7 @@ namespace SLAM_Benchmark
 
         void update(const T val);
 
-        nlohmann::json summaryStatistics(const string &prefix = "");
+        nlohmann::ordered_json summaryStatistics(const string &prefix = "");
     };
 
     template <class T>
@@ -98,7 +98,7 @@ namespace SLAM_Benchmark
     }
 
     template <class T>
-    nlohmann::json Meter<T>::summaryStatistics(const string &prefix)
+    nlohmann::ordered_json Meter<T>::summaryStatistics(const string &prefix)
     {
         return {
             {"min", getMin()},
