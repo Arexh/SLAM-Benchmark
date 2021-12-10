@@ -25,13 +25,15 @@ namespace SLAM_Benchmark
         SystemName m_system_name;
         map<string, ThreadRecorder*> m_thread_map;
         struct SystemInfoRecord *m_info_record;
+        ThreadRecorder* m_publish_record;
 
     public:
         SystemRecorder(SystemName system_name) : m_start_time(0),
                                                  m_end_time(0),
                                                  m_system_name(system_name),
                                                  m_thread_map({}),
-                                                 m_info_record() {}
+                                                 m_info_record(),
+                                                 m_publish_record() {}
 
         ~SystemRecorder();
 
@@ -40,6 +42,8 @@ namespace SLAM_Benchmark
         void recordSystemStop();
 
         void addThreadRecord(ThreadRecorder* thread_recorder);
+
+        void addPublishRecord(ThreadRecorder* publish_record);
 
         nlohmann::ordered_json summary();
     };

@@ -40,5 +40,4 @@ namespace SLAM_Benchmark
         clock_gettime(threadClockId, &currTime);
         return currTime;
     }
-
 }

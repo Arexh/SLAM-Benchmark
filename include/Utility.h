@@ -24,8 +24,7 @@ namespace SLAM_Benchmark
 
         static int readFileContentInt(const std::string &file_name);
 
-        static void timedTask(const uint32_t interval,
-                              const std::function<void()> callback);
+        static void timedTask(const uint32_t interval, const std::function<void()> callback);
 
         static double simpleComputationTask(unsigned long long loops);
         /*
@@ -38,6 +37,8 @@ namespace SLAM_Benchmark
         
         template <class T>
         static T roundDecimal(T number, int decimalVal);
+
+        static double calculateFPS(uint64_t interval);
     };
 
     inline uint64_t Utility::getCurrentMillisecond()
@@ -69,5 +70,10 @@ namespace SLAM_Benchmark
         double powerOfTen = pow(10, decimalVal);
         T value = (long)(number * powerOfTen + .5);
         return (T) value / powerOfTen;
+    }
+
+    inline double Utility::calculateFPS(uint64_t interval)
+    {
+        return 1000.0 / interval;
     }
 }

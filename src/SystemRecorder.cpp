@@ -30,16 +30,23 @@ namespace SLAM_Benchmark
         m_thread_map[thread_recorder->thread_name] = thread_recorder;
     }
 
+    void SystemRecorder::addPublishRecord(ThreadRecorder* publish_recorder)
+    {
+        m_publish_record = publish_recorder;
+    }
+
     nlohmann::ordered_json SystemRecorder::summary()
     {
         nlohmann::ordered_json summary = {
             {"SystemName", ToString(m_system_name)},
+            {"CPU", m_info_record->cpu_percent_meter.summaryStatistics("%")},
+            {"VirtualMemory", m_info_record->virtual_memory_meter.summaryStatistics()},
+            {"PhysicalMemory", m_info_record->physical_memory_meter.summaryStatistics()},
             {"StartTime", m_start_time},
             {"EndTime", m_end_time},
             {"Interval", m_end_time - m_start_time},
-            {"CPU", m_info_record->cpu_percent_meter.summaryStatistics("%")},
-            {"VirtualMemory", m_info_record->virtual_memory_meter.summaryStatistics()},
-            {"PhysicalMemory", m_info_record->physical_memory_meter.summaryStatistics()}
+            {"PublishTime", m_publish_record->time_meter.summaryStatistics()},
+            {"AvgFPS", Utility::calculateFPS(m_publish_record->time_meter.getMean())}
         };
 
         if (SystemInfoManager::isCPUPowerAvailable()) {
@@ -73,6 +80,8 @@ namespace SLAM_Benchmark
         summary["Threads"] = thread_info;
 
         nlohmann::ordered_json values;
+        values["PublishTime"] = m_publish_record->time_meter.getValueList();
+
         values["CPU"] = m_info_record->cpu_percent_meter.getValueList();
         values["GPU"] = m_info_record->gpu_power_meter.getValueList();
         values["SOC"] = m_info_record->soc_power_meter.getValueList();
