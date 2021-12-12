@@ -20,6 +20,19 @@ set(JSON_Install
 add_subdirectory(third_party/nlohmann_json)
 # ---------------- include nlohmann_json ----------------
 
+# ---------------- include orb_slam2 ----------------
+# disable JSON library's tests
+set(JSON_BuildTests
+    OFF
+    CACHE INTERNAL "")
+# include as PRIVATE source files, no install
+set(JSON_Install
+    OFF
+    CACHE INTERNAL "")
+# specify the directory
+add_subdirectory(third_party/nlohmann_json)
+# ---------------- include orb_slam2 ----------------
+
 include_directories(${PROJECT_SOURCE_DIR}/include third_party/matplotlib-cpp/
                     third_party/nlohmann_json/include)
 
