@@ -33,8 +33,10 @@ set(JSON_Install
 add_subdirectory(third_party/nlohmann_json)
 # ---------------- include orb_slam2 ----------------
 
-include_directories(${PROJECT_SOURCE_DIR}/include third_party/matplotlib-cpp/
-                    third_party/nlohmann_json/include)
+include_directories(
+${PROJECT_SOURCE_DIR}/include
+${PROJECT_SOURCE_DIR}/third_party/matplotlib-cpp/
+${PROJECT_SOURCE_DIR}/third_party/nlohmann_json/include)
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)

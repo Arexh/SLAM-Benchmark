@@ -7,6 +7,9 @@ ENDIF()
 
 MESSAGE("Build type: " ${CMAKE_BUILD_TYPE})
 
+# disable warnings
+add_definitions(-w)
+
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -Wall  -O3 -march=native ")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall   -O3 -march=native")
 
@@ -38,6 +41,26 @@ endif()
 
 find_package(Eigen3 3.1.0 REQUIRED)
 find_package(Pangolin REQUIRED)
+
+# ---------------- include g2o ----------------
+# specify the directory
+add_subdirectory(Thirdparty/g2o)
+# ---------------- include g2o ----------------
+
+# --------------- include DBoW2 ---------------
+# specify the directory
+add_subdirectory(Thirdparty/DBoW2)
+# --------------- include DBoW2 ---------------
+
+# ------- define untar vocabulary task --------
+add_custom_target(UntarVocabularyTask ALL)
+add_custom_command(TARGET UntarVocabularyTask PRE_BUILD
+   COMMAND ${CMAKE_COMMAND} -E tar xzf ORBvoc.txt.tar.gz
+WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/Vocabulary
+DEPENDS ${CMAKE_SOURCE_DIR}/Vocabulary/ORBvoc.txt.tar.gz
+COMMENT "- Untar Vocabulary/ORBVoc.txt.tar.gz"
+VERBATIM)
+# ------- define untar vocabulary task --------
 
 include_directories(
 ${PROJECT_SOURCE_DIR}
@@ -74,8 +97,8 @@ target_link_libraries(${PROJECT_NAME}
 ${OpenCV_LIBS}
 ${EIGEN3_LIBS}
 ${Pangolin_LIBRARIES}
-${PROJECT_SOURCE_DIR}/Thirdparty/DBoW2/lib/libDBoW2.so
-${PROJECT_SOURCE_DIR}/Thirdparty/g2o/lib/libg2o.so
+DBoW2
+g2o
 )
 
 # Build examples
