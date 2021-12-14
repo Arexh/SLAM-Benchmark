@@ -1,3 +1,5 @@
+#pragma once
+
 // copy from: https://stackoverflow.com/questions/5093460/how-to-convert-an-enum-type-variable-to-a-string?page=1&tab=votes#tab-top
 #include <boost/preprocessor.hpp>
 
