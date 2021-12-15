@@ -216,6 +216,41 @@ public:
      */
     void Reset();
 
+    ~Tracking()
+    {
+        // delete mpLocalMapper; - deleted in System.h
+        // delete mpLoopClosing; - deleted in System.h
+        delete mpORBextractorLeft;
+        delete mpORBextractorRight;
+        delete mpIniORBextractor;
+        // delete mpORBVocabulary; - deleted in System.h
+        // delete mpKeyFrameDB; - deleted in System.h
+        // delete mpInitializer; - already deleted
+        // delete mpReferenceKF; - skip keyframe
+        // delete mpSystem; - deleted in System.h
+        // delete mpViewer; - deleted in System.h
+        // delete mpFrameDrawer; - deleted in System.h
+        // delete mpMapDrawer; - deleted in System.h
+        // delete mpMap; - deleted in System.h
+        // delete mpLastKeyFrame; - skip keyframe
+
+        // for (auto p : mvpLocalKeyFrames)
+        // {
+        //     delete p;
+        // }
+        // mvpLocalKeyFrames.clear();
+        // for (auto p : mvpLocalMapPoints)
+        // {
+        //     delete p; - skip keyframe and mappoint
+        // }
+        // mvpLocalMapPoints.clear();
+        // for (auto p : mlpTemporalPoints)
+        // {
+        //     delete p;
+        // }
+        // mlpTemporalPoints.clear();
+    }
+
 protected:
 
     // Main tracking function. It is independent of the input sensor.

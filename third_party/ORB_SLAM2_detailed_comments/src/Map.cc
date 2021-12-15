@@ -80,6 +80,7 @@ void Map::EraseMapPoint(MapPoint *pMP)
     //占用的内存区域并没有得到释放
     // TODO: This only erase the pointer.
     // Delete the MapPoint
+    // delete pMP;
 }
 
 /**
@@ -94,6 +95,7 @@ void Map::EraseKeyFrame(KeyFrame *pKF)
 
     // TODO: This only erase the pointer.
     // Delete the MapPoint
+    // delete pKF;
 }
 
 /*

@@ -290,6 +290,35 @@ public:
         return pKF1->mnId<pKF2->mnId;
     }
 
+    ~KeyFrame()
+    {
+        // delete mpKeyFrameDB; - deleted in Tracking.h
+        // delete mpORBvocabulary; - deleted in Tracking.h
+        // delete mpParent; - skip keyframe
+        // delete mpMap; - deleted in Tracking.h
+
+        // for (auto p : mvpMapPoints)
+        // {
+        //     delete p;
+        // }
+        // mvpMapPoints.clear();
+        // for (auto p : mvpOrderedConnectedKeyFrames)
+        // {
+        //     delete p;
+        // }
+        // mvpOrderedConnectedKeyFrames.clear(); - skip
+        // for (auto p : mspChildrens)
+        // {
+        //     delete p;
+        // }
+        // mspChildrens.clear();
+        // for (auto p : mspLoopEdges)
+        // {
+        //     delete p;
+        // }
+        // mspLoopEdges.clear();
+    }
+
 
     // The following variables are accesed from only 1 thread or never change (no mutex needed).
 public:

@@ -76,7 +76,7 @@ public:
 
     // Main function
     /** @brief 线程主函数 */
-    void Run();
+    virtual void Run();
 
     /**
      * @brief 插入关键帧,由外部线程调用
@@ -124,6 +124,21 @@ public:
     int KeyframesInQueue(){
         unique_lock<std::mutex> lock(mMutexNewKFs);
         return mlNewKeyFrames.size();
+    }
+
+    ~LocalMapping()
+    {
+        // delete mpMap; - deleted in System.h
+        // delete mpLoopCloser; - deleted in System.h
+        // delete mpTracker; - deleted in System.h
+        // delete mpCurrentKeyFrame; - already deleted
+
+        // mlNewKeyFrames - already deleted
+        // for (auto p : mlpRecentAddedMapPoints)
+        // {
+        //     delete p; - skip
+        // }
+        // mlpRecentAddedMapPoints.clear();
     }
 
 protected:

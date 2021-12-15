@@ -97,8 +97,8 @@ public:
     // Proccess the given monocular frame
     // Input images: RGB (CV_8UC3) or grayscale (CV_8U). RGB is converted to grayscale.
     // Returns the camera pose (empty if tracking fails).
-    cv::Mat TrackMonocular(const cv::Mat &im,           //图像
-                           const double &timestamp);    //时间戳
+    virtual cv::Mat TrackMonocular(const cv::Mat &im,           //图像
+                                   const double &timestamp);    //时间戳
 
     // This stops local mapping thread (map building) and performs only camera tracking.
     //使能定位模式，此时仅有运动追踪部分在工作，局部建图功能则不工作
@@ -155,7 +155,33 @@ public:
     std::vector<MapPoint*> GetTrackedMapPoints();
     std::vector<cv::KeyPoint> GetTrackedKeyPointsUn();
 
-private:
+    ~System()
+    {
+        delete mpVocabulary;
+        delete mpKeyFrameDatabase;
+        delete mpMap;
+        delete mpTracker;
+        delete mpLocalMapper;
+        delete mpLoopCloser;
+        delete mpViewer;
+        delete mpFrameDrawer;
+        delete mpMapDrawer;
+
+        mptLocalMapping->join();
+        mptLoopClosing->join();
+        mptViewer->join();
+        delete mptLocalMapping;
+        delete mptLoopClosing;
+        delete mptViewer;
+
+        // for (auto p : mTrackedMapPoints)
+        // {
+        //     delete p;
+        // }
+        // mTrackedMapPoints.clear();
+    }
+
+protected:
 
     //注意变量命名方式，类的变量有前缀m，如果这个变量是指针类型还要多加个前缀p，
     //如果是进程那么加个前缀t

@@ -142,6 +142,25 @@ public:
     ///为了避免地图点id冲突设计的互斥量
     std::mutex mMutexPointCreation;
 
+    ~Map()
+    {
+        // for (auto p : mspMapPoints)
+        // {
+        //     delete p; - assume deleted in mvpReferenceMapPoints
+        // }
+        // mspMapPoints.clear();
+        // for (auto p : mspKeyFrames)
+        // {
+        //     delete p;
+        // }
+        // mspKeyFrames.clear(); - skip
+        // for (auto p : mvpReferenceMapPoints)
+        // {
+        //     delete p;
+        // }
+        // mvpReferenceMapPoints.clear();
+    }
+
 protected:
     // 存储所有的地图点
     std::set<MapPoint*> mspMapPoints; 

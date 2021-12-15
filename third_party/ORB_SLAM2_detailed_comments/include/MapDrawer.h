@@ -90,6 +90,11 @@ public:
      */
     void GetCurrentOpenGLCameraMatrix(pangolin::OpenGlMatrix &M);
 
+    ~MapDrawer()
+    {
+        // delete mpMap; - deleted in System.h
+    }
+
 private:
 
     //绘制这些部件的参数

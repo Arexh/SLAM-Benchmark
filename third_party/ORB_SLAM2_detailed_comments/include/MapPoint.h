@@ -225,6 +225,13 @@ public:
     //? 
     int PredictScale(const float &currentDist, Frame* pF);
 
+    ~MapPoint()
+    {
+        // delete mpReplaced; - skip mappoint
+        // delete mpRefKF; - skip keyframe
+        // delete mpMap; - deleted in System.h
+    }
+
 public:
     long unsigned int mnId; ///< Global ID for MapPoint
     static long unsigned int nNextId;

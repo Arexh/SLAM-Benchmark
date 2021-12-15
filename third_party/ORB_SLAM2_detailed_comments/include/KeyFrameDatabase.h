@@ -97,6 +97,11 @@ public:
    */
    std::vector<KeyFrame*> DetectRelocalizationCandidates(Frame* F);
 
+   ~KeyFrameDatabase()
+   {
+    //  delete mpVoc; - deleted in System.h
+   }
+
 protected:
 
   // Associated vocabulary

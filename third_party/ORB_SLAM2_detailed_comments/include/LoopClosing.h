@@ -84,7 +84,7 @@ public:
 
     // Main function
     /** @brief 回环检测线程主函数 */
-    void Run();
+    virtual void Run();
 
     /** @brief 将某个关键帧加入到回环检测的过程中,由局部建图线程调用
      *  @param[in] pKF   */
@@ -117,6 +117,44 @@ public:
     bool isFinished();
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+    ~LoopClosing()
+    {
+        // delete mpMap; - deleted in System.h
+        // delete mpTracker; - deleted in System.h
+        // delete mpKeyFrameDB; - deleted in System.h
+        // delete mpORBVocabulary; - deleted in System.h
+        // delete mpLocalMapper; - deleted in System.h
+        // delete mpCurrentKF; - skip keyframe
+        // delete mpMatchedKF; - skip keyframe
+        delete mpThreadGBA;
+
+        // for (auto p : mlpLoopKeyFrameQueue)
+        // {
+        //     delete p; - skip keyframe
+        // }
+        // mlpLoopKeyFrameQueue.clear();
+        // for (auto p : mvpEnoughConsistentCandidates)
+        // {
+        //     delete p; - skip keyframe
+        // }
+        // mvpEnoughConsistentCandidates.clear();
+        // for (auto p : mvpCurrentConnectedKFs)
+        // {
+        //     delete p; - skip keyframe
+        // }
+        // mvpCurrentConnectedKFs.clear();
+        // for (auto p : mvpCurrentMatchedPoints)
+        // {
+        //     delete p; - skip keyframe
+        // }
+        // mvpCurrentMatchedPoints.clear();
+        // for (auto p : mvpLoopMapPoints)
+        // {
+        //     delete p; - skip keyframe
+        // }
+        // mvpLoopMapPoints.clear();
+    }
 
 protected:
 

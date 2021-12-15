@@ -271,6 +271,18 @@ public:
      */
     cv::Mat UnprojectStereo(const int &i);
 
+    ~Frame()
+    {
+        // delete mpORBvocabulary; - deleted in System.h
+        // delete mpORBextractorLeft; - deleted in Track.h
+        // delete mpORBextractorRight; - deleted in Track.h
+        
+        // for (auto p : mvpMapPoints)
+        // {
+        //     delete p; - skip
+        // }
+        // mvpMapPoints.clear();
+    }
 public:
 
     // Vocabulary used for relocalization.
