@@ -3,6 +3,8 @@
 
 namespace SLAM_Benchmark
 {
+    SystemRecorder *SystemRecorder::m_system_recorder = 0;
+
     SystemRecorder::~SystemRecorder()
     {
         delete m_info_record;

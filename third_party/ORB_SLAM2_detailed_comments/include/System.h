@@ -66,6 +66,7 @@ public:
     };
 
 public:
+    System() {}
 
     // Initialize the SLAM system. It launches the Local Mapping, Loop Closing and Viewer threads.
     //构造函数，用来初始化整个系统。

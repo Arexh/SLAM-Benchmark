@@ -1,4 +1,8 @@
 #include "BenchmarkManager.h"
+#include "ORB_SLAM2_Injection/System.h"
+#include "ORB_SLAM2_Injection/LoopClosing.h"
+#include "ORB_SLAM2_Injection/LocalMapping.h"
+#include "Utility.h"
 
 #include <iostream>
 #include <string>
@@ -15,6 +19,10 @@ namespace SLAM_Benchmark
     {
         DatasetLoader *dataset_loader = createDatasetLoader(dataset_name, dataset_path);
         ORB_SLAM2::System *slam_system = createSystem(system_name, dataset_name, true);
+        // create and start the recorder
+        // SLAM_Benchmark::SystemRecorder *info_recorder = SystemRecorder::getInstance(system_name);
+        // SLAM_Benchmark::Utility::thread_flag = true;
+        // info_recorder->recordSystemStart();
 
         vector<double> time_stamp = dataset_loader->getTimestamp();
         int image_num = dataset_loader->getSize();
@@ -63,6 +71,7 @@ namespace SLAM_Benchmark
 
         // Stop all threads
         slam_system->Shutdown();
+        // info_recorder->recordSystemStop();
 
         // Tracking time statistics
         sort(time_stamp.begin(), time_stamp.end());
@@ -85,8 +94,8 @@ namespace SLAM_Benchmark
         case DatasetName::TUM:
             dataset_loader = new TUMDatasetLoader(dataset_path);
             break;
-        case DatasetName::KITTI:
-            break;
+        default:
+            dataset_loader = new TUMDatasetLoader(dataset_path);
         }
         return dataset_loader;
     }
@@ -97,11 +106,16 @@ namespace SLAM_Benchmark
         switch (system_name)
         {
         case SystemName::ORB_SLAM2:
-            system = new ORB_SLAM2::System(ORB_SLAM2_VOC_PATH,
-                                           ORB_SLAM2_SETTING_MAP.at(dataset_name),
-                                           ORB_SLAM2::System::eSensor::MONOCULAR,
-                                           use_viewer);
+            system = new SLAM_Benchmark::ORB_SLAM2_Inject::System(ORB_SLAM2_VOC_PATH,
+                                                                  ORB_SLAM2_SETTING_MAP.at(dataset_name),
+                                                                  ORB_SLAM2::System::eSensor::MONOCULAR,
+                                                                  use_viewer);
             break;
+        default:
+            system = new SLAM_Benchmark::ORB_SLAM2_Inject::System(ORB_SLAM2_VOC_PATH,
+                                                                  ORB_SLAM2_SETTING_MAP.at(dataset_name),
+                                                                  ORB_SLAM2::System::eSensor::MONOCULAR,
+                                                                  use_viewer);
         }
         return system;
     }

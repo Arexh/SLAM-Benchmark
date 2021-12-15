@@ -1,8 +1,5 @@
 #pragma once
 
-#include <chrono>
-#include <sys/stat.h>
-#include <unistd.h>
 #include <string>
 #include <stdlib.h>
 #include <fstream>
@@ -27,13 +24,6 @@ namespace SLAM_Benchmark
         static void timedTask(const uint32_t interval, const std::function<void()> callback);
 
         static double simpleComputationTask(unsigned long long loops);
-        /*
-            struct timespec {
-               time_t   tv_sec;        / seconds
-               long     tv_nsec;       // nanoseconds
-           };
-        */
-        static struct timespec getThreadTime();
         
         template <class T>
         static T roundDecimal(T number, int decimalVal);

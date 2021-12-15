@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.1)
 project(slam_benchmark)
 
 set(CMAKE_BUILD_TYPE "Release")
@@ -50,37 +50,34 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 add_library(
   SLAMBenchmarkLib
   src/Utility.cpp src/SystemInfoManager.cpp src/SystemInfo.cpp
-  src/SystemRecorder.cpp src/ThreadRecorder.cpp
+  src/SystemRecorder.cpp
   src/BenchmarkManager.cpp)
+
+add_library(
+  LibThreadRecorder
+  src/ThreadRecorder.cpp)
 
 target_link_libraries(SLAMBenchmarkLib)
 
 add_executable(systemInfoSummary test/SystemInfoSummary.cpp)
 
 target_link_libraries(systemInfoSummary SLAMBenchmarkLib -lpthread -lpython2.7
-                      -lboost_system)
-
-target_link_libraries(systemInfoSummary PRIVATE nlohmann_json::nlohmann_json)
+                      -lboost_system nlohmann_json::nlohmann_json LibThreadRecorder)
 
 add_executable(testSystemInfoManager test/TestSystemInfoManager.cpp)
 
 target_link_libraries(testSystemInfoManager SLAMBenchmarkLib -lpthread
-                      -lpython2.7 -lboost_system)
-
-target_link_libraries(testSystemInfoManager
-                      PRIVATE nlohmann_json::nlohmann_json)
+                      -lpython2.7 -lboost_system nlohmann_json::nlohmann_json LibThreadRecorder)
 
 add_executable(testJSON test/TestJSON.cpp)
 
-target_link_libraries(testJSON PRIVATE nlohmann_json::nlohmann_json)
+target_link_libraries(testJSON PRIVATE nlohmann_json::nlohmann_json LibThreadRecorder)
 
 add_executable(testSystemRecorder test/TestSystemRecorder.cpp)
 
 target_link_libraries(testSystemRecorder SLAMBenchmarkLib -lpthread -lpython2.7
-                      -lboost_system)
-
-target_link_libraries(testSystemRecorder PRIVATE nlohmann_json::nlohmann_json)
+                      -lboost_system nlohmann_json::nlohmann_json LibThreadRecorder)
 
 add_executable(testORBSLAM2 test/TestORBSLAM2.cpp)
 
-target_link_libraries(testORBSLAM2 SLAMBenchmarkLib ORB_SLAM2)
+target_link_libraries(testORBSLAM2 SLAMBenchmarkLib ORB_SLAM2 LibThreadRecorder)

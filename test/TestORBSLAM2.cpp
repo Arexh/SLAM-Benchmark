@@ -32,6 +32,7 @@
 #include "BenchmarkManager.h"
 
 using namespace std;
+using namespace SLAM_Benchmark;
 
 int main(int argc, char **argv)
 {
@@ -41,7 +42,14 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    SLAM_Benchmark::BenchmarkManager::benchmark(SLAM_Benchmark::SystemName::ORB_SLAM2, SLAM_Benchmark::DatasetName::TUM, argv[1]);
+    // SystemRecorder *system_recorder = SystemRecorder::getInstance(SystemName::ORB_SLAM2);
+    // system_recorder->recordSystemStart();
+    BenchmarkManager::benchmark(SystemName::ORB_SLAM2, DatasetName::TUM, argv[1]);
+    // system_recorder->recordSystemStop();
+
+    // std::ofstream o("orb_slam2.json");
+    // o << std::setw(4) << system_recorder->summary() << std::endl;
+    // o.close();
 
     return 0;
 }
