@@ -4,6 +4,7 @@
 #include "ORB_SLAM2_detailed_comments/include/Optimizer.h"
 
 #include "ThreadRecorder.h"
+#include "SystemRecorder.h"
 
 namespace SLAM_Benchmark
 {
@@ -36,24 +37,33 @@ namespace ORB_SLAM2_Inject
                 {
                     thread_recorder->recordThreadProcessStart();
 
+                    thread_recorder->recordSubprocessStart("ProcessNewKeyFrame");
                     // BoW conversion and insertion in Map
                     // Step 2 处理列表中的关键帧，包括计算BoW、更新观测、描述子、共视图，插入到地图等
                     ProcessNewKeyFrame();
+                    thread_recorder->recordSubprocessStop("ProcessNewKeyFrame");
 
+
+                    thread_recorder->recordSubprocessStart("MapPointCulling");
                     // Check recent MapPoints
                     // Step 3 根据地图点的观测情况剔除质量不好的地图点
                     MapPointCulling();
+                    thread_recorder->recordSubprocessStop("MapPointCulling");
 
+                    thread_recorder->recordSubprocessStart("CreateNewMapPoints");
                     // Triangulate new MapPoints
                     // Step 4 当前关键帧与相邻关键帧通过三角化产生新的地图点，使得跟踪更稳
                     CreateNewMapPoints();
+                    thread_recorder->recordSubprocessStop("CreateNewMapPoints");
 
                     // 已经处理完队列中的最后的一个关键帧
                     if (!CheckNewKeyFrames())
                     {
+                        thread_recorder->recordSubprocessStart("SearchInNeighbors");
                         // Find more matches in neighbor keyframes and fuse point duplications
                         //  Step 5 检查并融合当前关键帧与相邻关键帧帧（两级相邻）中重复的地图点
                         SearchInNeighbors();
+                        thread_recorder->recordSubprocessStop("SearchInNeighbors");
                     }
 
                     // 终止BA的标志
@@ -64,14 +74,19 @@ namespace ORB_SLAM2_Inject
                     {
                         // Local BA
                         // Step 6 当局部地图中的关键帧大于2个的时候进行局部地图的BA
-                        if (mpMap->KeyFramesInMap() > 2)
-                            // 注意这里的第二个参数是按地址传递的,当这里的 mbAbortBA 状态发生变化时，能够及时执行/停止BA
+                        if (mpMap->KeyFramesInMap() > 2) // 注意这里的第二个参数是按地址传递的,当这里的 mbAbortBA 状态发生变化时，能够及时执行/停止BA
+                        {
+                            thread_recorder->recordSubprocessStart("LocalBundleAdjustment");
                             ORB_SLAM2::Optimizer::LocalBundleAdjustment(mpCurrentKeyFrame, &mbAbortBA, mpMap);
+                            thread_recorder->recordSubprocessStop("LocalBundleAdjustment");
+                        }
 
+                        thread_recorder->recordSubprocessStart("KeyFrameCulling");
                         // Check redundant local Keyframes
                         // Step 7 检测并剔除当前帧相邻的关键帧中冗余的关键帧
                         // 冗余的判定：该关键帧的90%的地图点可以被其它关键帧观测到
                         KeyFrameCulling();
+                        thread_recorder->recordSubprocessStop("KeyFrameCulling");
                     }
 
                     // Step 8 将当前帧加入到闭环检测队列中

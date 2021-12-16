@@ -98,7 +98,7 @@ public:
      * @brief 全局BA线程,这个函数是这个线程的主函数
      * @param[in] nLoopKF 看名字是闭环关键帧,但是实际上给的是当前关键帧的ID
      */
-    void RunGlobalBundleAdjustment(unsigned long nLoopKF);
+    virtual void RunGlobalBundleAdjustment(unsigned long nLoopKF);
 
     // 在回环纠正的时候调用,查看当前是否已经有一个全局优化的线程在进行
     bool isRunningGBA(){
@@ -193,7 +193,7 @@ protected:
      * 4. 对Essential Graph（Pose Graph）进行优化，MapPoints的位置则根据优化后的位姿做相对应的调整                         \n
      * 5. 创建线程进行全局Bundle Adjustment
      */
-    void CorrectLoop();
+    virtual void CorrectLoop();
     /** @brief  当前线程调用,检查是否有外部线程请求复位当前线程,如果有的话就复位回环检测线程 */
     void ResetIfRequested();
     /// 是否有复位当前线程的请求

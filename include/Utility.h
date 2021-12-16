@@ -33,7 +33,7 @@ namespace SLAM_Benchmark
 
     inline uint64_t Utility::getCurrentNanosecond()
     {
-        return std::chrono::duration_cast<std::chrono::milliseconds>(
+        return std::chrono::duration_cast<std::chrono::nanoseconds>(
                    std::chrono::system_clock::now().time_since_epoch())
             .count();
     }

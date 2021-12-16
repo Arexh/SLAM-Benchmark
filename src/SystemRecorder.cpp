@@ -30,7 +30,8 @@ namespace SLAM_Benchmark
 
     void SystemRecorder::addThreadRecord(ThreadRecorder *thread_recorder)
     {
-        m_thread_map[thread_recorder->thread_name] = thread_recorder;
+        m_thread_map[thread_recorder->m_thread_name] = thread_recorder;
+        m_thread_insert_order.push_back(thread_recorder->m_thread_name);
     }
 
     ThreadRecorder* SystemRecorder::getThreadRecorder(const string &thread_name)
@@ -53,10 +54,10 @@ namespace SLAM_Benchmark
             {"StartTime", m_start_time},
             {"EndTime", m_end_time},
             {"Interval", m_end_time - m_start_time},
-            {"AvgFPS", 1000000000L / m_publish_record->time_meter.getMean()}};
+            {"AvgFPS", 1000000000L / m_publish_record->m_time_meter.getMean()}};
 
         if (m_publish_record != NULL)
-            summary["PublishTime"] = m_publish_record->time_meter.summaryStatistics();
+            summary["PublishTime"] = m_publish_record->m_time_meter.summaryStatistics();
 
         if (SystemInfoManager::isCPUPowerAvailable())
         {
@@ -84,20 +85,15 @@ namespace SLAM_Benchmark
         }
 
         nlohmann::ordered_json thread_info;
-        for (auto it = m_thread_map.begin(); it != m_thread_map.end(); it++)
+        for (unsigned int i = 0; i < m_thread_insert_order.size(); i++)
         {
-            ThreadRecorder *record = it->second;
-            thread_info[it->first] = {
-                {"StartTime", record->start_time},
-                {"EndTime", record->end_time},
-                {"Interval", record->end_time - record->start_time},
-                {"ThreadTime", record->thread_time},
-                {"ProcessTime", record->time_meter.summaryStatistics()}};
+            ThreadRecorder *record = m_thread_map[m_thread_insert_order[i]];
+            thread_info[m_thread_insert_order[i]] = record->summary();
         }
         summary["Threads"] = thread_info;
 
         nlohmann::ordered_json values;
-        values["PublishTime"] = m_publish_record->time_meter.getValueList();
+        values["PublishTime"] = m_publish_record->m_time_meter.getValueList();
 
         values["CPU"] = m_info_record->cpu_percent_meter.getValueList();
         values["VirtualMemory"] = m_info_record->virtual_memory_meter.getValueList();
@@ -107,7 +103,7 @@ namespace SLAM_Benchmark
         nlohmann::ordered_json thread_values;
         for (auto it = m_thread_map.begin(); it != m_thread_map.end(); it++)
         {
-            thread_values[it->first] = it->second->time_meter.getValueList();
+            thread_values[it->first] = it->second->m_time_meter.getValueList();
         }
         values["ThreadTimeInterval"] = thread_values;
         summary["RawValues"] = values;

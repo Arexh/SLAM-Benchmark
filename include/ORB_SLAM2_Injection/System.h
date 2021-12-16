@@ -31,6 +31,28 @@ namespace SLAM_Benchmark
                 mbDeactivateLocalizationMode = false;
                 /* init members */
 
+                /* init recorders */
+                SLAM_Benchmark::SystemRecorder *system_recorder = SLAM_Benchmark::SystemRecorder::getInstance(SLAM_Benchmark::SystemName::ORB_SLAM2);
+                SLAM_Benchmark::ThreadRecorder *local_mapper_recorder = new SLAM_Benchmark::ThreadRecorder("LocalMapping");
+                SLAM_Benchmark::ThreadRecorder *loop_closing_recorder = new SLAM_Benchmark::ThreadRecorder("LoopClosing");
+                SLAM_Benchmark::ThreadRecorder *bundle_adjustment_recorder = new SLAM_Benchmark::ThreadRecorder("BundleAdjustment");
+                system_recorder->addThreadRecord(local_mapper_recorder);
+                system_recorder->addThreadRecord(loop_closing_recorder);
+                system_recorder->addThreadRecord(bundle_adjustment_recorder);
+                local_mapper_recorder->createSubprocess("ProcessNewKeyFrame");
+                local_mapper_recorder->createSubprocess("MapPointCulling");
+                local_mapper_recorder->createSubprocess("CreateNewMapPoints");
+                local_mapper_recorder->createSubprocess("SearchInNeighbors");
+                local_mapper_recorder->createSubprocess("LocalBundleAdjustment");
+                local_mapper_recorder->createSubprocess("KeyFrameCulling");
+                loop_closing_recorder->createSubprocess("DetectLoop");
+                loop_closing_recorder->createSubprocess("ComputeSim3");
+                loop_closing_recorder->createSubprocess("SearchAndFuse");
+                loop_closing_recorder->createSubprocess("OptimizeEssentialGraph");
+                bundle_adjustment_recorder->createSubprocess("FullBundleAdjustment");
+                bundle_adjustment_recorder->createSubprocess("MapUpdate");
+                /* init recorders */
+
                 // Output welcome message
                 cout << endl
                      << "ORB-SLAM2 Copyright (C) 2014-2016 Raul Mur-Artal, University of Zaragoza." << endl
@@ -102,12 +124,6 @@ namespace SLAM_Benchmark
                                                     mpKeyFrameDatabase, //关键帧地图
                                                     strSettingsFile,    //设置文件路径
                                                     mSensor);           //传感器类型iomanip
-
-                SLAM_Benchmark::SystemRecorder *system_recorder = SLAM_Benchmark::SystemRecorder::getInstance(SLAM_Benchmark::SystemName::ORB_SLAM2);
-                SLAM_Benchmark::ThreadRecorder *local_mapper_recorder = new SLAM_Benchmark::ThreadRecorder("LocalMapping");
-                SLAM_Benchmark::ThreadRecorder *loop_closing_recorder = new SLAM_Benchmark::ThreadRecorder("LoopClosing");
-                system_recorder->addThreadRecord(local_mapper_recorder);
-                system_recorder->addThreadRecord(loop_closing_recorder);
 
                 LocalMapping *mpLocalMapperInjected = new LocalMapping(mpMap,                 //指定使iomanip
                                                                        mSensor == MONOCULAR); // TODO 为什么这个要设置成为MONOCULAR？？？

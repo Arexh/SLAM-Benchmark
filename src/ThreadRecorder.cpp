@@ -2,11 +2,12 @@
 #include <chrono>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <iostream>
+
+#include "Utility.h"
 
 namespace SLAM_Benchmark
 {
-    inline uint64_t getCurrentNanosecond();
-
     /*
         struct timespec {
             time_t   tv_sec;        / seconds
@@ -17,30 +18,55 @@ namespace SLAM_Benchmark
 
     void ThreadRecorder::recordThreadCreate()
     {
-        start_time = getCurrentNanosecond();
+        m_start_time = Utility::getCurrentNanosecond();
     }
 
     void ThreadRecorder::recordThreadDestory()
     {
-        end_time = getCurrentNanosecond();
-        thread_time = getThreadTime().tv_nsec;
+        m_end_time = Utility::getCurrentNanosecond();
+        m_thread_time = getThreadTime().tv_nsec;
     }
 
     void ThreadRecorder::recordThreadProcessStart()
     {
-        temp_time = getCurrentNanosecond();
+        m_temp_time = Utility::getCurrentNanosecond();
     }
 
     void ThreadRecorder::recordThreadProcessStop()
     {
-        time_meter.update(getCurrentNanosecond() - temp_time);
+        m_time_meter.update(Utility::getCurrentNanosecond() - m_temp_time);
     }
 
-    inline uint64_t getCurrentNanosecond()
+    void ThreadRecorder::createSubprocess(const string &process_name)
     {
-        return std::chrono::duration_cast<std::chrono::nanoseconds>(
-                   std::chrono::system_clock::now().time_since_epoch())
-            .count();
+        m_subprocess_meter[process_name] = new Meter<uint64_t>();
+        m_insert_order.push_back(process_name);
+    }
+
+    void ThreadRecorder::recordSubprocessStart(const string &process_name)
+    {
+        m_subprocess_time[process_name] = Utility::getCurrentNanosecond();
+    }
+
+    void ThreadRecorder::recordSubprocessStop(const string &process_name)
+    {
+        m_subprocess_meter[process_name]->update(Utility::getCurrentNanosecond() - m_subprocess_time[process_name]);
+    }
+
+    nlohmann::ordered_json ThreadRecorder::summary()
+    {
+        nlohmann::ordered_json summary = {{"StartTime", m_start_time},
+                                          {"EndTime", m_end_time},
+                                          {"Interval", m_end_time - m_start_time},
+                                          {"ThreadTime", m_thread_time},
+                                          {"ProcessTime", m_time_meter.summaryStatistics()}};
+        nlohmann::ordered_json subprocess_summary = {};
+        for (unsigned int i = 0; i < m_insert_order.size(); i++)
+        {
+            subprocess_summary[m_insert_order[i]] = m_subprocess_meter[m_insert_order[i]]->summaryStatistics();
+        }
+        summary["Subprocess"] = subprocess_summary;
+        return summary;
     }
 
     // copy from: https://stackoverflow.com/questions/44916362/how-can-i-measure-cpu-time-of-a-specific-set-of-threads

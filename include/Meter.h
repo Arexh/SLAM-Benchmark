@@ -100,11 +100,20 @@ namespace SLAM_Benchmark
     template <class T>
     nlohmann::ordered_json Meter<T>::summaryStatistics(const string &prefix)
     {
+        if (m_list.size() == 0)
+        {
+            return {
+                {"min", 0},
+                {"max", 0},
+                {"avg", 0},
+                {"std", 0},
+                {"count", 0}};
+        }
         return {
             {"min", getMin()},
             {"max", getMax()},
             {"avg", getMean()},
             {"std", getStd()},
-        };
+            {"count", m_list.size()}};
     }
 }
