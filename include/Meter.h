@@ -107,6 +107,7 @@ namespace SLAM_Benchmark
                 {"max", 0},
                 {"avg", 0},
                 {"std", 0},
+                {"sum", 0},
                 {"count", 0}};
         }
         return {
@@ -114,6 +115,7 @@ namespace SLAM_Benchmark
             {"max", getMax()},
             {"avg", getMean()},
             {"std", getStd()},
+            {"sum", getSum()},
             {"count", m_list.size()}};
     }
 }

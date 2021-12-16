@@ -113,7 +113,7 @@ public:
      * @param[in] timestamp     时间戳
      * @return cv::Mat          世界坐标系到该帧相机坐标系的变换矩阵
      */
-    cv::Mat GrabImageMonocular(const cv::Mat &im, const double &timestamp);
+    virtual cv::Mat GrabImageMonocular(const cv::Mat &im, const double &timestamp);
 
     /**
      * @brief 设置局部地图句柄
@@ -255,7 +255,7 @@ protected:
 
     // Main tracking function. It is independent of the input sensor.
     /** @brief 主追踪进程 */
-    void Track();
+    virtual void Track();
 
     // Map initialization for stereo and RGB-D
     /** @brief 在双目输入和RGBD输入时所做的初始化,主要是产生初始地图 */

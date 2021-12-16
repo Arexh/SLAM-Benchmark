@@ -54,7 +54,7 @@ namespace SLAM_Benchmark
             {"StartTime", m_start_time},
             {"EndTime", m_end_time},
             {"Interval", m_end_time - m_start_time},
-            {"AvgFPS", 1000000000L / m_publish_record->m_time_meter.getMean()}};
+            {"AvgFPS", 1000000000.0 / m_publish_record->m_time_meter.getMean()}};
 
         if (m_publish_record != NULL)
             summary["PublishTime"] = m_publish_record->m_time_meter.summaryStatistics();

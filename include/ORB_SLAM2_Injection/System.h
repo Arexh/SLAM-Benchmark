@@ -10,6 +10,7 @@
 #include "SystemRecorder.h"
 #include "ORB_SLAM2_Injection/LocalMapping.h"
 #include "ORB_SLAM2_Injection/LoopClosing.h"
+#include "ORB_SLAM2_Injection/Tracking.h"
 
 namespace SLAM_Benchmark
 {
@@ -30,28 +31,6 @@ namespace SLAM_Benchmark
                 mbActivateLocalizationMode = false;
                 mbDeactivateLocalizationMode = false;
                 /* init members */
-
-                /* init recorders */
-                SLAM_Benchmark::SystemRecorder *system_recorder = SLAM_Benchmark::SystemRecorder::getInstance(SLAM_Benchmark::SystemName::ORB_SLAM2);
-                SLAM_Benchmark::ThreadRecorder *local_mapper_recorder = new SLAM_Benchmark::ThreadRecorder("LocalMapping");
-                SLAM_Benchmark::ThreadRecorder *loop_closing_recorder = new SLAM_Benchmark::ThreadRecorder("LoopClosing");
-                SLAM_Benchmark::ThreadRecorder *bundle_adjustment_recorder = new SLAM_Benchmark::ThreadRecorder("BundleAdjustment");
-                system_recorder->addThreadRecord(local_mapper_recorder);
-                system_recorder->addThreadRecord(loop_closing_recorder);
-                system_recorder->addThreadRecord(bundle_adjustment_recorder);
-                local_mapper_recorder->createSubprocess("ProcessNewKeyFrame");
-                local_mapper_recorder->createSubprocess("MapPointCulling");
-                local_mapper_recorder->createSubprocess("CreateNewMapPoints");
-                local_mapper_recorder->createSubprocess("SearchInNeighbors");
-                local_mapper_recorder->createSubprocess("LocalBundleAdjustment");
-                local_mapper_recorder->createSubprocess("KeyFrameCulling");
-                loop_closing_recorder->createSubprocess("DetectLoop");
-                loop_closing_recorder->createSubprocess("ComputeSim3");
-                loop_closing_recorder->createSubprocess("SearchAndFuse");
-                loop_closing_recorder->createSubprocess("OptimizeEssentialGraph");
-                bundle_adjustment_recorder->createSubprocess("FullBundleAdjustment");
-                bundle_adjustment_recorder->createSubprocess("MapUpdate");
-                /* init recorders */
 
                 // Output welcome message
                 cout << endl
@@ -116,14 +95,15 @@ namespace SLAM_Benchmark
                 //在本主进程中初始化追踪线程
                 //Initialize the Tracking thread
                 //(it will live in the main thread of execution, the one that called this constructor)
-                mpTracker = new ORB_SLAM2::Tracking(this,               //现在还不是很明白为什么这里还需要一个this指针  TODO
-                                                    mpVocabulary,       //字典
-                                                    mpFrameDrawer,      //帧绘制器
-                                                    mpMapDrawer,        //地图绘制器
-                                                    mpMap,              //地图
-                                                    mpKeyFrameDatabase, //关键帧地图
-                                                    strSettingsFile,    //设置文件路径
-                                                    mSensor);           //传感器类型iomanip
+                Tracking *mpTrackerInjected = new Tracking(this,               //现在还不是很明白为什么这里还需要一个this指针  TODO
+                                                           mpVocabulary,       //字典
+                                                           mpFrameDrawer,      //帧绘制器
+                                                           mpMapDrawer,        //地图绘制器
+                                                           mpMap,              //地图
+                                                           mpKeyFrameDatabase, //关键帧地图
+                                                           strSettingsFile,    //设置文件路径
+                                                           mSensor);           //传感器类型iomanip
+                mpTracker = mpTrackerInjected;
 
                 LocalMapping *mpLocalMapperInjected = new LocalMapping(mpMap,                 //指定使iomanip
                                                                        mSensor == MONOCULAR); // TODO 为什么这个要设置成为MONOCULAR？？？
@@ -133,7 +113,7 @@ namespace SLAM_Benchmark
                 mpLocalMapper = mpLocalMapperInjected;
 
                 //运行这个局部建图线程
-                mptLocalMapping = new thread(&LocalMapping::Run,                            //这个线程会调用的函数
+                mptLocalMapping = new thread(&LocalMapping::Run,     //这个线程会调用的函数
                                              mpLocalMapperInjected); //这个调用函数的参数
 
                 LoopClosing *mpLoopCloserInjected = new LoopClosing(mpMap,                 //地图
@@ -144,7 +124,7 @@ namespace SLAM_Benchmark
                 //Initialize the Loop Closing thread and launchiomanip
                 mpLoopCloser = mpLoopCloserInjected;
                 //创建回环检测线程
-                mptLoopClosing = new thread(&LoopClosing::Run,                            //线程的主函数
+                mptLoopClosing = new thread(&LoopClosing::Run,     //线程的主函数
                                             mpLoopCloserInjected); //该函数的参数
 
                 //Initialize the Viewer thread and launch

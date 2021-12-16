@@ -354,6 +354,8 @@ namespace SLAM_Benchmark
             {
                 SLAM_Benchmark::ThreadRecorder *thread_recorder = SLAM_Benchmark::SystemRecorder::getInstance(SLAM_Benchmark::SystemName::ORB_SLAM2)->getThreadRecorder("BundleAdjustment");
 
+                thread_recorder->recordThreadProcessStart();
+
                 cout << "Starting Global Bundle Adjustment" << endl;
 
                 // 记录GBA已经迭代次数,用来检查全局BA过程是否是因为意外结束的
@@ -500,6 +502,8 @@ namespace SLAM_Benchmark
                     mbFinishedGBA = true;
                     mbRunningGBA = false;
                 }
+
+                thread_recorder->recordThreadProcessStop();
             }
         };
     } // ORB_SLAM2
