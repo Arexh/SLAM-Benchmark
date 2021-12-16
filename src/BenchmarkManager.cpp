@@ -18,17 +18,15 @@ namespace SLAM_Benchmark
     void BenchmarkManager::benchmark(SystemName system_name, DatasetName dataset_name, const std::string dataset_path)
     {
         DatasetLoader *dataset_loader = createDatasetLoader(dataset_name, dataset_path);
-        ORB_SLAM2::System *slam_system = createSystem(system_name, dataset_name, true);
+        ORB_SLAM2::System *slam_system = createSystem(system_name, dataset_name, false);
         // create and start the recorder
-        // SLAM_Benchmark::SystemRecorder *info_recorder = SystemRecorder::getInstance(system_name);
-        // SLAM_Benchmark::Utility::thread_flag = true;
-        // info_recorder->recordSystemStart();
+        SLAM_Benchmark::SystemRecorder *info_recorder = SystemRecorder::getInstance(system_name);
+        info_recorder->recordSystemStart();
+
+        SLAM_Benchmark::ThreadRecorder *publish_recorder = new SLAM_Benchmark::ThreadRecorder("Publish");
 
         vector<double> time_stamp = dataset_loader->getTimestamp();
         int image_num = dataset_loader->getSize();
-
-        vector<float> time_track;
-        time_track.resize(image_num);
 
         cout << endl
              << "-------" << endl;
@@ -47,43 +45,29 @@ namespace SLAM_Benchmark
                 return;
             }
 
-            std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
+            publish_recorder->recordThreadProcessStart();
 
             // Pass the image to the SLAM system
             slam_system->TrackMonocular(image, tframe);
 
-            std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
-
-            double ttrack = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1).count();
-
-            time_track[i] = ttrack;
-
-            // Wait to load the next frame
-            double T = 0;
-            if (i < image_num - 1)
-                T = time_stamp[i + 1] - tframe;
-            else if (i > 0)
-                T = tframe - time_stamp[i - 1];
-
-            if (ttrack < T)
-                usleep((T - ttrack) * 1e6);
+            publish_recorder->recordThreadProcessStop();
         }
 
         // Stop all threads
         slam_system->Shutdown();
-        // info_recorder->recordSystemStop();
+        info_recorder->recordSystemStop();
+        info_recorder->addPublishRecord(publish_recorder);
 
-        // Tracking time statistics
-        sort(time_stamp.begin(), time_stamp.end());
-        float totaltime = 0;
-        for (int i = 0; i < image_num; i++)
-        {
-            totaltime += time_track[i];
-        }
-        cout << "-------" << endl
-             << endl;
-        cout << "median tracking time: " << time_track[image_num / 2] << endl;
-        cout << "mean tracking time: " << totaltime / image_num << endl;
+        cout << info_recorder->summary() << endl;
+
+        std::ofstream o("orb_slam2.json");
+        o << std::setw(4) << info_recorder->summary() << std::endl;
+        o.close();
+        cout << "Save summary to orb_slam2.json" << endl;
+
+        delete info_recorder;
+        delete dataset_loader;
+        delete slam_system;
     }
 
     DatasetLoader *BenchmarkManager::createDatasetLoader(DatasetName dataset_name, const std::string &dataset_path)

@@ -25,13 +25,12 @@ namespace SLAM_Benchmark
             {
                 /* init members */
                 mSensor = sensor;
-                mpViewer = static_cast<ORB_SLAM2::Viewer*>(NULL);
+                mpViewer = static_cast<ORB_SLAM2::Viewer *>(NULL);
                 mbReset = false;
                 mbActivateLocalizationMode = false;
                 mbDeactivateLocalizationMode = false;
                 /* init members */
 
-                cout << "nice here" << endl;
                 // Output welcome message
                 cout << endl
                      << "ORB-SLAM2 Copyright (C) 2014-2016 Raul Mur-Artal, University of Zaragoza." << endl
@@ -106,17 +105,17 @@ namespace SLAM_Benchmark
 
                 //初始化局部建图线程并运行
                 //Initialize the Local Mapping thread and launch
-                mpLocalMapper = new ORB_SLAM2::LocalMapping(mpMap,                 //指定使iomanip
-                                                            mSensor == MONOCULAR); // TODO 为什么这个要设置成为MONOCULAR？？？
+                mpLocalMapper = new LocalMapping(mpMap,                 //指定使iomanip
+                                                 mSensor == MONOCULAR); // TODO 为什么这个要设置成为MONOCULAR？？？
                 //运行这个局部建图线程
                 mptLocalMapping = new thread(&ORB_SLAM2::LocalMapping::Run, //这个线程会调用的函数
                                              mpLocalMapper);                //这个调用函数的参数
 
                 //Initialize the Loop Closing thread and launchiomanip
-                mpLoopCloser = new ORB_SLAM2::LoopClosing(mpMap,                 //地图
-                                                          mpKeyFrameDatabase,    //关键帧数据库
-                                                          mpVocabulary,          //ORB字典
-                                                          mSensor != MONOCULAR); //当前的传感器是否是单目
+                mpLoopCloser = new LoopClosing(mpMap,                 //地图
+                                               mpKeyFrameDatabase,    //关键帧数据库
+                                               mpVocabulary,          //ORB字典
+                                               mSensor != MONOCULAR); //当前的传感器是否是单目
                 //创建回环检测线程
                 mptLoopClosing = new thread(&ORB_SLAM2::LoopClosing::Run, //线程的主函数
                                             mpLoopCloser);                //该函数的参数

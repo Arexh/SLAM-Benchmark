@@ -26,7 +26,7 @@ namespace SLAM_Benchmark
         SystemName m_system_name;
         map<string, ThreadRecorder *> m_thread_map;
         struct SystemInfoRecord *m_info_record;
-        ThreadRecorder *m_publish_record;
+        ThreadRecorder *m_publish_record = NULL;
 
     public:
         static SystemRecorder *getInstance(SystemName system_name)

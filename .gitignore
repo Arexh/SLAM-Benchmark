@@ -7,3 +7,4 @@ output
 lib
 KeyFrameTrajectory.txt
 core
+*.json

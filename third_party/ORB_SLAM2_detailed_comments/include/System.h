@@ -164,16 +164,19 @@ public:
         delete mpTracker;
         delete mpLocalMapper;
         delete mpLoopCloser;
-        delete mpViewer;
+        if (mpViewer != NULL)
+            delete mpViewer;
         delete mpFrameDrawer;
         delete mpMapDrawer;
 
         mptLocalMapping->join();
         mptLoopClosing->join();
-        mptViewer->join();
+        if (mptViewer != NULL)
+            mptViewer->join();
         delete mptLocalMapping;
         delete mptLoopClosing;
-        delete mptViewer;
+        if (mptViewer != NULL)
+            delete mptViewer;
 
         // for (auto p : mTrackedMapPoints)
         // {
@@ -220,7 +223,7 @@ protected:
 
     // The viewer draws the map and the current camera pose. It uses Pangolin.
     // 查看器，可视化 界面
-    Viewer* mpViewer;
+    Viewer* mpViewer = NULL;
 
     //帧绘制器
     FrameDrawer* mpFrameDrawer;
@@ -233,7 +236,7 @@ protected:
     //系统除了在主进程中进行运动追踪工作外，会创建局部建图线程、回环检测线程和查看器线程。
     std::thread* mptLocalMapping;
     std::thread* mptLoopClosing;
-    std::thread* mptViewer;
+    std::thread* mptViewer = NULL;
 
     // Reset flag
     //复位标志，注意这里目前还不清楚为什么要定义为std::mutex类型 TODO 

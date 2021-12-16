@@ -8,6 +8,7 @@ namespace SLAM_Benchmark
     SystemRecorder::~SystemRecorder()
     {
         delete m_info_record;
+        delete m_publish_record;
 
         for (auto it = m_thread_map.begin(); it != m_thread_map.end(); it++)
         {
@@ -47,9 +48,10 @@ namespace SLAM_Benchmark
             {"StartTime", m_start_time},
             {"EndTime", m_end_time},
             {"Interval", m_end_time - m_start_time},
-            {"PublishTime", m_publish_record->time_meter.summaryStatistics()},
             {"AvgFPS", Utility::calculateFPS(m_publish_record->time_meter.getMean())}
         };
+
+        if (m_publish_record != NULL) summary["PublishTime"] = m_publish_record->time_meter.summaryStatistics();
 
         if (SystemInfoManager::isCPUPowerAvailable()) {
             summary["CPUPower"] = m_info_record->cpu_power_meter.summaryStatistics();
@@ -85,6 +87,8 @@ namespace SLAM_Benchmark
         values["PublishTime"] = m_publish_record->time_meter.getValueList();
 
         values["CPU"] = m_info_record->cpu_percent_meter.getValueList();
+        values["VirtualMemory"] = m_info_record->virtual_memory_meter.getValueList();
+        values["PhysicalMemory"] = m_info_record->physical_memory_meter.getValueList();
         values["GPU"] = m_info_record->gpu_power_meter.getValueList();
         values["SOC"] = m_info_record->soc_power_meter.getValueList();
         nlohmann::ordered_json thread_values;
