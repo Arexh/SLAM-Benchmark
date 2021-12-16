@@ -2,8 +2,8 @@
 
 #include "SystemInfoManager.h"
 #include "ThreadRecorder.h"
-#include "EnumToString.h"
 #include "Meter.h"
+#include "Enums.h"
 
 #include <nlohmann/json.hpp>
 #include <stdio.h>
@@ -15,8 +15,6 @@ using namespace std;
 
 namespace SLAM_Benchmark
 {
-    DEFINE_ENUM_WITH_STRING_CONVERSIONS(SystemName, (ORB_SLAM2)(ORB_SLAM3)(VINS_MONO));
-
     class SystemRecorder
     {
     private:
@@ -61,6 +59,8 @@ namespace SLAM_Benchmark
         void recordSystemStop();
 
         void addThreadRecord(ThreadRecorder *thread_recorder);
+
+        ThreadRecorder* getThreadRecorder(const string &thread_name);
 
         void addPublishRecord(ThreadRecorder *publish_record);
 

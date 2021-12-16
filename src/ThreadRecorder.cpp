@@ -5,7 +5,7 @@
 
 namespace SLAM_Benchmark
 {
-    inline uint64_t getCurrentMillisecond();
+    inline uint64_t getCurrentNanosecond();
 
     /*
         struct timespec {
@@ -17,28 +17,28 @@ namespace SLAM_Benchmark
 
     void ThreadRecorder::recordThreadCreate()
     {
-        start_time = getCurrentMillisecond();
+        start_time = getCurrentNanosecond();
     }
 
     void ThreadRecorder::recordThreadDestory()
     {
-        end_time = getCurrentMillisecond();
-        thread_time = getThreadTime().tv_nsec / 1000.0;
+        end_time = getCurrentNanosecond();
+        thread_time = getThreadTime().tv_nsec;
     }
 
     void ThreadRecorder::recordThreadProcessStart()
     {
-        temp_time = getCurrentMillisecond();
+        temp_time = getCurrentNanosecond();
     }
 
     void ThreadRecorder::recordThreadProcessStop()
     {
-        time_meter.update(getCurrentMillisecond() - temp_time);
+        time_meter.update(getCurrentNanosecond() - temp_time);
     }
 
-    inline uint64_t getCurrentMillisecond()
+    inline uint64_t getCurrentNanosecond()
     {
-        return std::chrono::duration_cast<std::chrono::milliseconds>(
+        return std::chrono::duration_cast<std::chrono::nanoseconds>(
                    std::chrono::system_clock::now().time_since_epoch())
             .count();
     }

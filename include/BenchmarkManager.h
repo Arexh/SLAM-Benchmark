@@ -1,6 +1,5 @@
 #pragma once
 
-#include "EnumToString.h"
 #include "SystemRecorder.h"
 #include "DatasetLoader.h"
 
@@ -8,8 +7,6 @@
 
 namespace SLAM_Benchmark
 {
-    DEFINE_ENUM_WITH_STRING_CONVERSIONS(DatasetName, (TUM)(KITTI));
-
     class BenchmarkManager
     {
     public:

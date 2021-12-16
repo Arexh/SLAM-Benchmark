@@ -14,8 +14,12 @@ namespace ORB_SLAM2_Inject
     public:
         LocalMapping(ORB_SLAM2::Map* pMap, const float bMonocular) : ORB_SLAM2::LocalMapping(pMap, bMonocular) {}
 
-        void Run()
+        void Run() override
         {
+            SLAM_Benchmark::ThreadRecorder *thread_recorder = SLAM_Benchmark::SystemRecorder::getInstance(SLAM_Benchmark::SystemName::ORB_SLAM2)->getThreadRecorder("LocalMapping");
+
+            thread_recorder->recordThreadCreate();
+
             // 标记状态，表示当前run函数正在运行，尚未结束
             mbFinished = false;
             // 主循环
@@ -30,6 +34,8 @@ namespace ORB_SLAM2_Inject
                 // 等待处理的关键帧列表不为空
                 if (CheckNewKeyFrames())
                 {
+                    thread_recorder->recordThreadProcessStart();
+
                     // BoW conversion and insertion in Map
                     // Step 2 处理列表中的关键帧，包括计算BoW、更新观测、描述子、共视图，插入到地图等
                     ProcessNewKeyFrame();
@@ -71,6 +77,8 @@ namespace ORB_SLAM2_Inject
                     // Step 8 将当前帧加入到闭环检测队列中
                     // 注意这里的关键帧被设置成为了bad的情况,这个需要注意
                     mpLoopCloser->InsertKeyFrame(mpCurrentKeyFrame);
+
+                    thread_recorder->recordThreadProcessStop();
                 }
                 else if (Stop()) // 当要终止当前线程的时候
                 {
@@ -102,6 +110,8 @@ namespace ORB_SLAM2_Inject
 
             // 设置线程已经终止
             SetFinish();
+
+            thread_recorder->recordThreadDestory();
         }
     };
 } // ORB_SLAM2

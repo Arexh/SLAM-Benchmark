@@ -18,22 +18,27 @@ namespace SLAM_Benchmark
 
     void SystemRecorder::recordSystemStart()
     {
-        m_start_time = Utility::getCurrentMillisecond();
+        m_start_time = Utility::getCurrentNanosecond();
         SystemInfoManager::startMonitor();
     }
 
     void SystemRecorder::recordSystemStop()
     {
-        m_end_time = Utility::getCurrentMillisecond();
+        m_end_time = Utility::getCurrentNanosecond();
         m_info_record = SystemInfoManager::stopMonitor();
     }
 
-    void SystemRecorder::addThreadRecord(ThreadRecorder* thread_recorder)
+    void SystemRecorder::addThreadRecord(ThreadRecorder *thread_recorder)
     {
         m_thread_map[thread_recorder->thread_name] = thread_recorder;
     }
 
-    void SystemRecorder::addPublishRecord(ThreadRecorder* publish_recorder)
+    ThreadRecorder* SystemRecorder::getThreadRecorder(const string &thread_name)
+    {
+        return m_thread_map[thread_name];
+    }
+
+    void SystemRecorder::addPublishRecord(ThreadRecorder *publish_recorder)
     {
         m_publish_record = publish_recorder;
     }
@@ -48,38 +53,46 @@ namespace SLAM_Benchmark
             {"StartTime", m_start_time},
             {"EndTime", m_end_time},
             {"Interval", m_end_time - m_start_time},
-            {"AvgFPS", Utility::calculateFPS(m_publish_record->time_meter.getMean())}
-        };
+            {"AvgFPS", 1000000000L / m_publish_record->time_meter.getMean()}};
 
-        if (m_publish_record != NULL) summary["PublishTime"] = m_publish_record->time_meter.summaryStatistics();
+        if (m_publish_record != NULL)
+            summary["PublishTime"] = m_publish_record->time_meter.summaryStatistics();
 
-        if (SystemInfoManager::isCPUPowerAvailable()) {
+        if (SystemInfoManager::isCPUPowerAvailable())
+        {
             summary["CPUPower"] = m_info_record->cpu_power_meter.summaryStatistics();
-        } else {
+        }
+        else
+        {
             summary["CPUPower"] = "Unavailable";
         }
-        if (SystemInfoManager::isGPUPowerAvailable()) {
+        if (SystemInfoManager::isGPUPowerAvailable())
+        {
             summary["GPUPower"] = m_info_record->gpu_power_meter.summaryStatistics();
-        } else {
+        }
+        else
+        {
             summary["GPUPower"] = "Unavailable";
         }
-        if (SystemInfoManager::isSOCPowerAvailable()) {
+        if (SystemInfoManager::isSOCPowerAvailable())
+        {
             summary["SOCPower"] = m_info_record->soc_power_meter.summaryStatistics();
-        } else {
+        }
+        else
+        {
             summary["SOCPower"] = "Unavailable";
         }
 
         nlohmann::ordered_json thread_info;
         for (auto it = m_thread_map.begin(); it != m_thread_map.end(); it++)
         {
-            ThreadRecorder* record = it->second;
+            ThreadRecorder *record = it->second;
             thread_info[it->first] = {
                 {"StartTime", record->start_time},
                 {"EndTime", record->end_time},
                 {"Interval", record->end_time - record->start_time},
                 {"ThreadTime", record->thread_time},
-                {"ProcessTime", record->time_meter.summaryStatistics()}
-            };
+                {"ProcessTime", record->time_meter.summaryStatistics()}};
         }
         summary["Threads"] = thread_info;
 

@@ -15,7 +15,7 @@ namespace SLAM_Benchmark
     public:
         static std::atomic_bool thread_flag;
 
-        static uint64_t getCurrentMillisecond();
+        static uint64_t getCurrentNanosecond();
 
         static bool checkIfFileExists(const std::string &file_name);
 
@@ -31,7 +31,7 @@ namespace SLAM_Benchmark
         static double calculateFPS(uint64_t interval);
     };
 
-    inline uint64_t Utility::getCurrentMillisecond()
+    inline uint64_t Utility::getCurrentNanosecond()
     {
         return std::chrono::duration_cast<std::chrono::milliseconds>(
                    std::chrono::system_clock::now().time_since_epoch())
@@ -64,6 +64,6 @@ namespace SLAM_Benchmark
 
     inline double Utility::calculateFPS(uint64_t interval)
     {
-        return 1000.0 / interval;
+        return 1000000.0 / interval;
     }
 }
