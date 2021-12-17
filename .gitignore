@@ -3,8 +3,8 @@ bin
 .vscode
 build
 /main*
-output
+/output
 lib
 KeyFrameTrajectory.txt
 core
-*.json
+/*.json

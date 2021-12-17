@@ -45,8 +45,8 @@
 *   either expressed or implied, of the FreeBSD Project
 */
 
-#ifndef PNPSOLVER_H
-#define PNPSOLVER_H
+#ifndef ORB_SLAM3_PNPSOLVER_H
+#define ORB_SLAM3_PNPSOLVER_H
 
 #include <opencv2/core/core.hpp>
 #include "MapPoint.h"

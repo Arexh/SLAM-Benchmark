@@ -17,8 +17,8 @@
 */
 
 
-#ifndef FRAME_H
-#define FRAME_H
+#ifndef ORB_SLAM3_FRAME_H
+#define ORB_SLAM3_FRAME_H
 
 #include<vector>
 

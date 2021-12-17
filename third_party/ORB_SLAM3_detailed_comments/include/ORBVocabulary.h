@@ -17,8 +17,8 @@
 */
 
 
-#ifndef ORBVOCABULARY_H
-#define ORBVOCABULARY_H
+#ifndef ORB_SLAM3_ORBVOCABULARY_H
+#define ORB_SLAM3_ORBVOCABULARY_H
 
 #include"Thirdparty/DBoW2/DBoW2/FORB.h"
 #include"Thirdparty/DBoW2/DBoW2/TemplatedVocabulary.h"

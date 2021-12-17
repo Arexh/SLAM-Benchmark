@@ -17,8 +17,8 @@
 */
 
 
-#ifndef G2OTYPES_H
-#define G2OTYPES_H
+#ifndef ORB_SLAM3_G2OTYPES_H
+#define ORB_SLAM3_G2OTYPES_H
 
 #include "Thirdparty/g2o/g2o/core/base_vertex.h"
 #include "Thirdparty/g2o/g2o/core/base_binary_edge.h"

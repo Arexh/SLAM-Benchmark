@@ -17,8 +17,8 @@
 */
 
 
-#ifndef LOCALMAPPING_H
-#define LOCALMAPPING_H
+#ifndef ORB_SLAM3_LOCALMAPPING_H
+#define ORB_SLAM3_LOCALMAPPING_H
 
 #include "KeyFrame.h"
 #include "Atlas.h"
@@ -48,7 +48,7 @@ public:
     void SetTracker(Tracking* pTracker);
 
     // Main function
-    void Run();
+    virtual void Run();
 
     void InsertKeyFrame(KeyFrame* pKF);
     void EmptyQueue();

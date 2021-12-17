@@ -17,8 +17,8 @@
 */
 
 
-#ifndef INITIALIZER_H
-#define INITIALIZER_H
+#ifndef ORB_SLAM3_INITIALIZER_H
+#define ORB_SLAM3_INITIALIZER_H
 
 #include<opencv2/opencv.hpp>
 #include "Frame.h"

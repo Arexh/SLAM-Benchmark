@@ -38,7 +38,7 @@ namespace g2o {
   typedef Matrix<double, 6, 1> Vector6d;
   typedef Matrix<double, 7, 1> Vector7d;
 
-  class  SE3Quat {
+  class SE3Quat {
     public:
       EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 

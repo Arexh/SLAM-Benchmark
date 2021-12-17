@@ -17,8 +17,8 @@
 */
 
 
-#ifndef MAPPOINT_H
-#define MAPPOINT_H
+#ifndef ORB_SLAM3_MAPPOINT_H
+#define ORB_SLAM3_MAPPOINT_H
 
 #include"KeyFrame.h"
 #include"Frame.h"

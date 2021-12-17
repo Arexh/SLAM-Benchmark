@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.13)
 SET(CMAKE_LEGACY_CYGWIN_WIN32 0)
 
 PROJECT(g2o)
@@ -151,6 +151,8 @@ g2o/core/optimization_algorithm_with_hessian.cpp
 g2o/core/optimization_algorithm_with_hessian.h
 g2o/core/optimization_algorithm_levenberg.cpp 
 g2o/core/optimization_algorithm_levenberg.h
+g2o/core/optimization_algorithm_gauss_newton.cpp 
+g2o/core/optimization_algorithm_gauss_newton.h
 g2o/core/jacobian_workspace.cpp 
 g2o/core/jacobian_workspace.h
 g2o/core/robust_kernel.cpp 

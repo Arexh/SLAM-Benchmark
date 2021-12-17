@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.13)
 project(slam_benchmark)
 
 set(CMAKE_BUILD_TYPE "Release")
@@ -11,6 +11,12 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 ADD_DEFINITIONS(-D_ORB_SLAM2_VOC_PATH=\"${PROJECT_SOURCE_DIR}/third_party/ORB_SLAM2_detailed_comments/Vocabulary/ORBvoc.txt\")
 ADD_DEFINITIONS(-D_ORB_SLAM2_TUM_SETTING_PATH=\"${PROJECT_SOURCE_DIR}/third_party/ORB_SLAM2_detailed_comments/Examples/Monocular/TUM1.yaml\")
 ADD_DEFINITIONS(-D_ORB_SLAM2_EuRoC_SETTING_PATH=\"${PROJECT_SOURCE_DIR}/third_party/ORB_SLAM2_detailed_comments/Examples/Monocular/EuRoC.yaml\")
+# define the path of ORB_SLAM3's setting and vocabulary
+ADD_DEFINITIONS(-D_ORB_SLAM3_VOC_PATH=\"${PROJECT_SOURCE_DIR}/third_party/ORB_SLAM3_detailed_comments/Vocabulary/ORBvoc.txt\")
+ADD_DEFINITIONS(-D_ORB_SLAM3_TUM_SETTING_PATH=\"${PROJECT_SOURCE_DIR}/third_party/ORB_SLAM3_detailed_comments/Examples/Monocular/TUM1.yaml\")
+ADD_DEFINITIONS(-D_ORB_SLAM3_EuRoC_SETTING_PATH=\"${PROJECT_SOURCE_DIR}/third_party/ORB_SLAM3_detailed_comments/Examples/Monocular/EuRoC.yaml\")
+# define cuda option
+option(USE_CUDA "Use Cuda." OFF)
 
 # ---------------- include nlohmann_json ----------------
 # disable JSON library's tests
@@ -34,13 +40,25 @@ set(ORB_SLAM2_EXECUTABLE
 add_subdirectory(third_party/ORB_SLAM2_detailed_comments)
 # ---------------- include orb_slam2 ----------------
 
+# ---------------- include orb_slam3 ----------------
+# disable executable
+set(ORB_SLAM3_COMPILE
+    OFF
+    CACHE INTERNAL "")
+# specify the directory
+add_subdirectory(third_party/ORB_SLAM3_detailed_comments)
+# ---------------- include orb_slam3 ----------------
+
 include_directories(
 ${PROJECT_SOURCE_DIR}/include
 ${PROJECT_SOURCE_DIR}/third_party
 ${PROJECT_SOURCE_DIR}/third_party/matplotlib-cpp/
 SYSTEM ${PROJECT_SOURCE_DIR}/third_party/nlohmann_json/include
 SYSTEM ${PROJECT_SOURCE_DIR}/third_party/ORB_SLAM2_detailed_comments/include
+SYSTEM ${PROJECT_SOURCE_DIR}/third_party/ORB_SLAM3_detailed_comments/include
+SYSTEM ${PROJECT_SOURCE_DIR}/third_party/ORB_SLAM3_detailed_comments/include/CameraModels
 SYSTEM ${PROJECT_SOURCE_DIR}/third_party/ORB_SLAM2_detailed_comments
+SYSTEM ${PROJECT_SOURCE_DIR}/third_party/ORB_SLAM3_detailed_comments
 SYSTEM ${EIGEN3_INCLUDE_DIR}
 )
 
@@ -56,6 +74,16 @@ add_library(
 add_library(
   LibThreadRecorder
   src/ThreadRecorder.cpp)
+
+target_link_libraries(ORB_SLAM3
+${OpenCV_LIBS}
+${EIGEN3_LIBS}
+${Pangolin_LIBRARIES}
+-lboost_serialization
+-lcrypto
+DBoW2
+g2o
+)
 
 target_link_libraries(SLAMBenchmarkLib)
 
@@ -80,4 +108,8 @@ target_link_libraries(testSystemRecorder SLAMBenchmarkLib -lpthread -lpython2.7
 
 add_executable(testORBSLAM2 test/TestORBSLAM2.cpp)
 
-target_link_libraries(testORBSLAM2 SLAMBenchmarkLib ORB_SLAM2 LibThreadRecorder)
+target_link_libraries(testORBSLAM2 PRIVATE SLAMBenchmarkLib ORB_SLAM2 ORB_SLAM3 LibThreadRecorder)
+
+add_executable(testORBSLAM3 test/TestORBSLAM3.cpp)
+
+target_link_libraries(testORBSLAM3 PRIVATE SLAMBenchmarkLib ORB_SLAM2 ORB_SLAM3 LibThreadRecorder)

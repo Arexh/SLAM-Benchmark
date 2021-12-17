@@ -17,8 +17,8 @@
 */
 
 
-#ifndef OPTIMIZER_H
-#define OPTIMIZER_H
+#ifndef ORB_SLAM3_OPTIMIZER_H
+#define ORB_SLAM3_OPTIMIZER_H
 
 #include "Map.h"
 #include "MapPoint.h"

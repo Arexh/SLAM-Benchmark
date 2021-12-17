@@ -17,8 +17,8 @@
 */
 
 
-#ifndef SYSTEM_H
-#define SYSTEM_H
+#ifndef ORB_SLAM3_SYSTEM_H
+#define ORB_SLAM3_SYSTEM_H
 
 #include <unistd.h>
 #include<stdio.h>
@@ -98,7 +98,7 @@ public:
     };
 
 public:
-
+    System() {}
     // Initialize the SLAM system. It launches the Local Mapping, Loop Closing and Viewer threads.
     /**
      * @brief Construct a new System object
@@ -192,7 +192,7 @@ public:
     void InsertTrackTime(double& time);
 #endif
 
-private:
+protected:
 
     // Input sensor
     eSensor mSensor;

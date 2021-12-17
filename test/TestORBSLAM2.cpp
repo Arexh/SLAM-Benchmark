@@ -42,7 +42,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    BenchmarkManager::benchmark(SystemName::ORB_SLAM2, DatasetName::TUM, argv[1]);
+    BenchmarkManager::benchmark_ORB_SLAM2(DatasetName::TUM, argv[1], true);
 
     return 0;
 }

@@ -17,8 +17,8 @@
 */
 
 
-#ifndef ORBMATCHER_H
-#define ORBMATCHER_H
+#ifndef ORB_SLAM3_ORBMATCHER_H
+#define ORB_SLAM3_ORBMATCHER_H
 
 #include<vector>
 #include<opencv2/core/core.hpp>

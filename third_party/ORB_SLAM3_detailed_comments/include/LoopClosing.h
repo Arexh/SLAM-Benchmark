@@ -17,8 +17,8 @@
 */
 
 
-#ifndef LOOPCLOSING_H
-#define LOOPCLOSING_H
+#ifndef ORB_SLAM3_LOOPCLOSING_H
+#define ORB_SLAM3_LOOPCLOSING_H
 
 #include "KeyFrame.h"
 #include "LocalMapping.h"
@@ -60,7 +60,7 @@ public:
     void SetLocalMapper(LocalMapping* pLocalMapper);
 
     // Main function
-    void Run();
+    virtual void Run();
 
     void InsertKeyFrame(KeyFrame *pKF);
 
@@ -68,7 +68,7 @@ public:
     void RequestResetActiveMap(Map* pMap);
 
     // This function will run in a separate thread
-    void RunGlobalBundleAdjustment(Map* pActiveMap, unsigned long nLoopKF);
+    virtual void RunGlobalBundleAdjustment(Map* pActiveMap, unsigned long nLoopKF);
 
     bool isRunningGBA(){
         unique_lock<std::mutex> lock(mMutexGBA);
@@ -128,7 +128,7 @@ protected:
     void SearchAndFuse(const KeyFrameAndPose &CorrectedPosesMap, vector<MapPoint*> &vpMapPoints);
     void SearchAndFuse(const vector<KeyFrame*> &vConectedKFs, vector<MapPoint*> &vpMapPoints);
 
-    void CorrectLoop();
+    virtual void CorrectLoop();
 
     void MergeLocal();
     void MergeLocal2();

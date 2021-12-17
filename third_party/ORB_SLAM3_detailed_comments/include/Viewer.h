@@ -17,8 +17,8 @@
 */
 
 
-#ifndef VIEWER_H
-#define VIEWER_H
+#ifndef ORB_SLAM3_VIEWER_H
+#define ORB_SLAM3_VIEWER_H
 
 #include "FrameDrawer.h"
 #include "MapDrawer.h"

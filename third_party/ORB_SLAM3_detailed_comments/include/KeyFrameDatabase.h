@@ -17,8 +17,8 @@
 */
 
 
-#ifndef KEYFRAMEDATABASE_H
-#define KEYFRAMEDATABASE_H
+#ifndef ORB_SLAM3_KEYFRAMEDATABASE_H
+#define ORB_SLAM3_KEYFRAMEDATABASE_H
 
 #include <vector>
 #include <list>

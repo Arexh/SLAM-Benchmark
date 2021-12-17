@@ -17,8 +17,8 @@
 */
 
 
-#ifndef TRACKING_H
-#define TRACKING_H
+#ifndef ORB_SLAM3_TRACKING_H
+#define ORB_SLAM3_TRACKING_H
 
 #include<opencv2/core/core.hpp>
 #include<opencv2/features2d/features2d.hpp>
@@ -72,7 +72,7 @@ public:
     // 输入图像输出位姿Tcw
     cv::Mat GrabImageStereo(const cv::Mat &imRectLeft,const cv::Mat &imRectRight, const double &timestamp, string filename);
     cv::Mat GrabImageRGBD(const cv::Mat &imRGB,const cv::Mat &imD, const double &timestamp, string filename);
-    cv::Mat GrabImageMonocular(const cv::Mat &im, const double &timestamp, string filename);
+    virtual cv::Mat GrabImageMonocular(const cv::Mat &im, const double &timestamp, string filename);
     // cv::Mat GrabImageImuMonocular(const cv::Mat &im, const double &timestamp);
     // 放置IMU数据
     void GrabImuData(const IMU::Point &imuMeasurement);
@@ -194,7 +194,7 @@ public:
 protected:
 
     // Main tracking function. It is independent of the input sensor.
-    void Track();   //主要的跟踪函数
+    virtual void Track();   //主要的跟踪函数
 
     // Map initialization for stereo and RGB-D
     void StereoInitialization();    //双目初始化

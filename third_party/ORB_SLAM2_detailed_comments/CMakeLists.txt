@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.13)
 project(ORB_SLAM2)
 
 IF(NOT CMAKE_BUILD_TYPE)
@@ -55,8 +55,8 @@ add_subdirectory(Thirdparty/DBoW2)
 # --------------- include DBoW2 ---------------
 
 # ------- define untar vocabulary task --------
-add_custom_target(UntarVocabularyTask ALL)
-add_custom_command(TARGET UntarVocabularyTask PRE_BUILD
+add_custom_target(ORB_SLAM2_UntarVocabularyTask ALL)
+add_custom_command(TARGET ORB_SLAM2_UntarVocabularyTask PRE_BUILD
    COMMAND ${CMAKE_COMMAND} -E tar xzf ORBvoc.txt.tar.gz
 WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/Vocabulary
 DEPENDS ${CMAKE_SOURCE_DIR}/Vocabulary/ORBvoc.txt.tar.gz

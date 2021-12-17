@@ -17,8 +17,8 @@
 */
 
 
-#ifndef CONVERTER_H
-#define CONVERTER_H
+#ifndef ORB_SLAM3_CONVERTER_H
+#define ORB_SLAM3_CONVERTER_H
 
 #include<opencv2/core/core.hpp>
 

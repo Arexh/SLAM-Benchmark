@@ -1,5 +1,5 @@
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef ORB_SLAM3_CONFIG_H
+#define ORB_SLAM3_CONFIG_H
 
 //#define REGISTER_TIMES
 

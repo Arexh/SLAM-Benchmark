@@ -17,8 +17,8 @@
 */
 
 
-#ifndef IMUTYPES_H
-#define IMUTYPES_H
+#ifndef ORB_SLAM3_IMUTYPES_H
+#define ORB_SLAM3_IMUTYPES_H
 
 #include<vector>
 #include<utility>
