@@ -2,10 +2,11 @@
 
 #include "ORB_SLAM3_detailed_comments/include/LoopClosing.h"
 #include "ORB_SLAM3_detailed_comments/include/Converter.h"
-#include "ORB_SLAM3_detailed_comments/include/Sim3Solver.h"
-#include "ORB_SLAM3_detailed_comments/include/ORBmatcher.h"
 #include "ORB_SLAM3_detailed_comments/include/G2oTypes.h"
 #include "ORB_SLAM3_detailed_comments/include/Optimizer.h"
+
+#include "ThreadRecorder.h"
+#include "SystemRecorder.h"
 
 namespace SLAM_Benchmark
 {
@@ -19,11 +20,14 @@ namespace SLAM_Benchmark
             // 回环线程主函数
             void Run() override
             {
+                SLAM_Benchmark::ThreadRecorder *thread_recorder = SLAM_Benchmark::SystemRecorder::getInstance(SLAM_Benchmark::SystemName::ORB_SLAM3)->getThreadRecorder("LoopClosing");
+
                 mbFinished = false;
 
                 // 线程主循环
                 while (1)
                 {
+                    thread_recorder->recordThreadProcessStart();
                     // Check if there are keyframes in the queue
                     // Loopclosing中的关键帧是LocalMapping发送过来的，LocalMapping是Tracking中发过来的
                     // 在LocalMapping中通过 InsertKeyFrame 将关键帧插入闭环检测队列mlpLoopKeyFrameQueue
@@ -35,27 +39,15 @@ namespace SLAM_Benchmark
                             mpLastCurrentKF->mvpLoopCandKFs.clear();
                             mpLastCurrentKF->mvpMergeCandKFs.clear();
                         }
-#ifdef REGISTER_TIMES
-                        timeDetectBoW = 0;
-                        std::chrono::steady_clock::time_point time_StartDetectBoW = std::chrono::steady_clock::now();
-#endif
+
+                        thread_recorder->recordSubprocessStart("DetectLoop&ComputeSim3");
                         // Step 2 检测有没有共视的区域
                         bool bDetected = NewDetectCommonRegions();
-#ifdef REGISTER_TIMES
-                        std::chrono::steady_clock::time_point time_EndDetectBoW = std::chrono::steady_clock::now();
-                        double timeDetect = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(time_EndDetectBoW - time_StartDetectBoW).count();
-                        double timeDetectSE3 = timeDetect - timeDetectBoW;
-
-                        if (timeDetectBoW > 0)
-                        {
-                            vTimeBoW_ms.push_back(timeDetectBoW);
-                        }
-                        vTimeSE3_ms.push_back(timeDetectSE3);
-                        vTimePRTotal_ms.push_back(timeDetect);
-#endif
+                        thread_recorder->recordSubprocessStop("DetectLoop&ComputeSim3");
 
                         if (bDetected)
                         {
+                            thread_recorder->recordSubprocessStart("MergeMap");
                             // Step 3 如果检测到融合（当前关键帧与其他地图有关联）, 则合并地图
                             if (mbMergeDetected)
                             {
@@ -121,20 +113,12 @@ namespace SLAM_Benchmark
                                     // 更新mg2oMergeScw
                                     mg2oMergeScw = mg2oMergeSlw;
 
-#ifdef REGISTER_TIMES
-                                    std::chrono::steady_clock::time_point time_StartMerge = std::chrono::steady_clock::now();
-#endif
                                     if (mpTracker->mSensor == ORB_SLAM3::System::IMU_MONOCULAR || mpTracker->mSensor == ORB_SLAM3::System::IMU_STEREO)
                                         // 如果是imu模式,则开启 Visual-Inertial Map Merging
                                         MergeLocal2();
                                     else
                                         // 如果是纯视觉模式,则开启 Visual-Welding Map Merging
                                         MergeLocal();
-#ifdef REGISTER_TIMES
-                                    std::chrono::steady_clock::time_point time_EndMerge = std::chrono::steady_clock::now();
-                                    double timeMerge = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(time_EndMerge - time_StartMerge).count();
-                                    vTimeMergeTotal_ms.push_back(timeMerge);
-#endif
                                 }
                                 // 记录时间戳
                                 vdPR_CurrentTime.push_back(mpCurrentKF->mTimeStamp);
@@ -164,6 +148,7 @@ namespace SLAM_Benchmark
                                     mbLoopDetected = false;
                                 }
                             }
+                            thread_recorder->recordSubprocessStop("MergeMap");
 
                             // Step 4 如果(没有检测到融合)检测到回环, 则回环矫正
                             if (mbLoopDetected)
@@ -214,16 +199,8 @@ namespace SLAM_Benchmark
 
                                         mvpLoopMapPoints = mvpLoopMPs; //*mvvpLoopMapPoints[nCurrentIndex];
 
-#ifdef REGISTER_TIMES
-                                        std::chrono::steady_clock::time_point time_StartLoop = std::chrono::steady_clock::now();
-#endif
                                         // 开启回环矫正
                                         CorrectLoop();
-#ifdef REGISTER_TIMES
-                                        std::chrono::steady_clock::time_point time_EndLoop = std::chrono::steady_clock::now();
-                                        double timeLoop = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(time_EndLoop - time_StartLoop).count();
-                                        vTimeLoopTotal_ms.push_back(timeLoop);
-#endif
                                     }
                                     // 如果pitch或roll角度偏差稍微有一点大,或 yaw大与20度则回环失败.
                                     else
@@ -235,16 +212,9 @@ namespace SLAM_Benchmark
                                 else
                                 {
                                     mvpLoopMapPoints = mvpLoopMPs;
-#ifdef REGISTER_TIMES
-                                    std::chrono::steady_clock::time_point time_StartLoop = std::chrono::steady_clock::now();
-#endif
+
                                     CorrectLoop();
 
-#ifdef REGISTER_TIMES
-                                    std::chrono::steady_clock::time_point time_EndLoop = std::chrono::steady_clock::now();
-                                    double timeLoop = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(time_EndLoop - time_StartLoop).count();
-                                    vTimeLoopTotal_ms.push_back(timeLoop);
-#endif
                                 }
 
                                 // Reset all variables
@@ -262,6 +232,8 @@ namespace SLAM_Benchmark
                     }
                     // 查看是否有外部线程请求复位当前线程
                     ResetIfRequested();
+
+                    thread_recorder->recordThreadProcessStop();
 
                     // 查看外部线程是否有终止当前线程的请求,如果有的话就跳出这个线程的主函数的主循环
                     if (CheckFinish())
@@ -285,10 +257,14 @@ namespace SLAM_Benchmark
                 //f_stats.close();
 
                 SetFinish();
+
+                thread_recorder->recordThreadDestory();
             }
 
             void CorrectLoop() override
             {
+                SLAM_Benchmark::ThreadRecorder *thread_recorder = SLAM_Benchmark::SystemRecorder::getInstance(SLAM_Benchmark::SystemName::ORB_SLAM3)->getThreadRecorder("LoopClosing");
+
                 cout << "Loop detected!" << endl;
 
                 // Send a stop signal to Local Mapping
@@ -323,6 +299,7 @@ namespace SLAM_Benchmark
                     usleep(1000);
                 }
 
+                thread_recorder->recordSubprocessStart("SearchAndFuse");
                 // Ensure current keyframe is updated
                 // Step 1：根据共视关系更新当前关键帧与其它关键帧之间的连接关系
                 // 因为之前闭环检测、计算Sim3中改变了该关键帧的地图点，所以需要更新
@@ -525,6 +502,7 @@ namespace SLAM_Benchmark
                         LoopConnections[pKFi].erase(*vit2);
                     }
                 }
+                thread_recorder->recordSubprocessStop("SearchAndFuse");
                 //cout << "LC: end updating covisibility graph" << endl;
 
                 // Optimize graph
@@ -534,6 +512,7 @@ namespace SLAM_Benchmark
                 if (mpTracker->mSensor == ORB_SLAM3::System::IMU_MONOCULAR && !mpCurrentKF->GetMap()->GetIniertialBA2())
                     bFixedScale = false;
 
+                thread_recorder->recordSubprocessStart("OptimizeEssentialGraph");
                 //cout << "Optimize essential graph" << endl;
                 if (pLoopMap->IsInertial() && pLoopMap->isImuInitialized())
                 {
@@ -546,6 +525,7 @@ namespace SLAM_Benchmark
                     // Step 6：进行EssentialGraph优化，LoopConnections是形成闭环后新生成的连接关系，不包括步骤7中当前帧与闭环匹配帧之间的连接关系
                     ORB_SLAM3::Optimizer::OptimizeEssentialGraph(pLoopMap, mpLoopMatchedKF, mpCurrentKF, NonCorrectedSim3, CorrectedSim3, LoopConnections, bFixedScale);
                 }
+                thread_recorder->recordSubprocessStop("OptimizeEssentialGraph");
 
                 //cout << "Optimize essential graph finished" << endl;
                 //usleep(5*1000*1000);
@@ -580,26 +560,21 @@ namespace SLAM_Benchmark
 
             void RunGlobalBundleAdjustment(ORB_SLAM3::Map *pActiveMap, unsigned long nLoopKF) override
             {
+                SLAM_Benchmark::ThreadRecorder *thread_recorder = SLAM_Benchmark::SystemRecorder::getInstance(SLAM_Benchmark::SystemName::ORB_SLAM3)->getThreadRecorder("BundleAdjustment");
+
+                thread_recorder->recordThreadProcessStart();
+
                 ORB_SLAM3::Verbose::PrintMess("Starting Global Bundle Adjustment", ORB_SLAM3::Verbose::VERBOSITY_NORMAL);
 
                 const bool bImuInit = pActiveMap->isImuInitialized();
 
-#ifdef REGISTER_TIMES
-                std::chrono::steady_clock::time_point time_StartFGBA = std::chrono::steady_clock::now();
-#endif
-
+                thread_recorder->recordSubprocessStart("GlobalBundleAdjustemnt");
                 if (!bImuInit)
                     ORB_SLAM3::Optimizer::GlobalBundleAdjustemnt(pActiveMap, 10, &mbStopGBA, nLoopKF, false);
                 else
                     // 仅有一个地图且内部关键帧<200，并且IMU完成了第一阶段初始化后才会进行下面
                     ORB_SLAM3::Optimizer::FullInertialBA(pActiveMap, 7, false, nLoopKF, &mbStopGBA);
-
-#ifdef REGISTER_TIMES
-                std::chrono::steady_clock::time_point time_StartMapUpdate = std::chrono::steady_clock::now();
-
-                double timeFullGBA = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(time_StartMapUpdate - time_StartFGBA).count();
-                vTimeFullGBA_ms.push_back(timeFullGBA);
-#endif
+                thread_recorder->recordSubprocessStop("GlobalBundleAdjustemnt");
 
                 // 记录GBA已经迭代次数,用来检查全局BA过程是否是因为意外结束的
                 int idx = mnFullBAIdx;
@@ -634,6 +609,7 @@ namespace SLAM_Benchmark
                         unique_lock<mutex> lock(pActiveMap->mMutexMapUpdate);
                         // cout << "LC: Update Map Mutex adquired" << endl;
 
+                        thread_recorder->recordSubprocessStart("MapUpdate");
                         //pActiveMap->PrintEssentialGraph();
                         // Correct keyframes starting at map first keyframe
                         list<ORB_SLAM3::KeyFrame *> lpKFtoCheck(pActiveMap->mvpKeyFrameOrigins.begin(), pActiveMap->mvpKeyFrameOrigins.end());
@@ -683,58 +659,6 @@ namespace SLAM_Benchmark
                             pKF->mTcwBefGBA = pKF->GetPose();
                             //cout << "pKF->mTcwBefGBA: " << pKF->mTcwBefGBA << endl;
                             pKF->SetPose(pKF->mTcwGBA);
-                            /*cv::Mat Tco_cn = pKF->mTcwBefGBA * pKF->mTcwGBA.inv();
-                cv::Vec3d trasl = Tco_cn.rowRange(0,3).col(3);
-                double dist = cv::norm(trasl);
-                cout << "GBA: KF " << pKF->mnId << " had been moved " << dist << " meters" << endl;
-                double desvX = 0;
-                double desvY = 0;
-                double desvZ = 0;
-                if(pKF->mbHasHessian)
-                {
-                    cv::Mat hessianInv = pKF->mHessianPose.inv();
-
-                    double covX = hessianInv.at<double>(3,3);
-                    desvX = std::sqrt(covX);
-                    double covY = hessianInv.at<double>(4,4);
-                    desvY = std::sqrt(covY);
-                    double covZ = hessianInv.at<double>(5,5);
-                    desvZ = std::sqrt(covZ);
-                    pKF->mbHasHessian = false;
-                }
-                if(dist > 1)
-                {
-                    cout << "--To much distance correction: It has " << pKF->GetConnectedKeyFrames().size() << " connected KFs" << endl;
-                    cout << "--It has " << pKF->GetCovisiblesByWeight(80).size() << " connected KF with 80 common matches or more" << endl;
-                    cout << "--It has " << pKF->GetCovisiblesByWeight(50).size() << " connected KF with 50 common matches or more" << endl;
-                    cout << "--It has " << pKF->GetCovisiblesByWeight(20).size() << " connected KF with 20 common matches or more" << endl;
-
-                    cout << "--STD in meters(x, y, z): " << desvX << ", " << desvY << ", " << desvZ << endl;
-
-
-                    string strNameFile = pKF->mNameFile;
-                    cv::Mat imLeft = cv::imread(strNameFile, CV_LOAD_IMAGE_UNCHANGED);
-
-                    cv::cvtColor(imLeft, imLeft, CV_GRAY2BGR);
-
-                    vector<MapPoint*> vpMapPointsKF = pKF->GetMapPointMatches();
-                    int num_MPs = 0;
-                    for(int i=0; i<vpMapPointsKF.size(); ++i)
-                    {
-                        if(!vpMapPointsKF[i] || vpMapPointsKF[i]->isBad())
-                        {
-                            continue;
-                        }
-                        num_MPs += 1;
-                        string strNumOBs = to_string(vpMapPointsKF[i]->Observations());
-                        cv::circle(imLeft, pKF->mvKeys[i].pt, 2, cv::Scalar(0, 255, 0));
-                        cv::putText(imLeft, strNumOBs, pKF->mvKeys[i].pt, CV_FONT_HERSHEY_DUPLEX, 1, cv::Scalar(255, 0, 0));
-                    }
-                    cout << "--It has " << num_MPs << " MPs matched in the map" << endl;
-
-                    string namefile = "./test_GBA/GBA_" + to_string(nLoopKF) + "_KF" + to_string(pKF->mnId) +"_D" + to_string(dist) +".png";
-                    cv::imwrite(namefile, imLeft);
-                }*/
 
                             if (pKF->bImu)
                             {
@@ -798,6 +722,7 @@ namespace SLAM_Benchmark
                                 pMP->SetWorldPos(Rwc * Xc + twc);
                             }
                         }
+                        thread_recorder->recordSubprocessStop("MapUpdate");
 
                         pActiveMap->InformNewBigChange();
                         pActiveMap->IncreaseChangeIndex();
@@ -814,15 +739,7 @@ namespace SLAM_Benchmark
                     mbRunningGBA = false;
                 }
 
-#ifdef REGISTER_TIMES
-                std::chrono::steady_clock::time_point time_EndMapUpdate = std::chrono::steady_clock::now();
-
-                double timeMapUpdate = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(time_EndMapUpdate - time_StartMapUpdate).count();
-                vTimeMapUpdate_ms.push_back(timeMapUpdate);
-
-                double timeGBA = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(time_EndMapUpdate - time_StartFGBA).count();
-                vTimeGBATotal_ms.push_back(timeGBA);
-#endif
+                thread_recorder->recordThreadProcessStop();
             }
         };
     }

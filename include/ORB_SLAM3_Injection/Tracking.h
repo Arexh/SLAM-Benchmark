@@ -2,6 +2,9 @@
 
 #include "ORB_SLAM3_detailed_comments/include/Tracking.h"
 
+#include "ThreadRecorder.h"
+#include "SystemRecorder.h"
+
 namespace SLAM_Benchmark
 {
     namespace ORB_SLAM3_Inject
@@ -26,6 +29,8 @@ namespace SLAM_Benchmark
             */
             cv::Mat GrabImageMonocular(const cv::Mat &im, const double &timestamp, string filename) override
             {
+                SLAM_Benchmark::ThreadRecorder *thread_recorder = SLAM_Benchmark::SystemRecorder::getInstance(SLAM_Benchmark::SystemName::ORB_SLAM3)->getThreadRecorder("Tracking");
+
                 mImGray = im;
 
                 // Step 1 ：将彩色图像转为灰度图像
@@ -45,6 +50,7 @@ namespace SLAM_Benchmark
                         cvtColor(mImGray, mImGray, cv::COLOR_BGRA2GRAY);
                 }
 
+                thread_recorder->recordSubprocessStart("ORBExtraction");
                 // Step 2 ：构造Frame类
                 if (mSensor == ORB_SLAM3::System::MONOCULAR)
                 {
@@ -63,6 +69,7 @@ namespace SLAM_Benchmark
                     else
                         mCurrentFrame = ORB_SLAM3::Frame(mImGray, timestamp, mpORBextractorLeft, mpORBVocabulary, mpCamera, mDistCoef, mbf, mThDepth, &mLastFrame, *mpImuCalib);
                 }
+                thread_recorder->recordSubprocessStop("ORBExtraction");
 
                 // t0存储未初始化时的第1帧图像时间戳
                 if (mState == NO_IMAGES_YET)
@@ -70,10 +77,6 @@ namespace SLAM_Benchmark
 
                 mCurrentFrame.mNameFile = filename;
                 mCurrentFrame.mnDataset = mnNumDataset;
-
-#ifdef REGISTER_TIMES
-                vdORBExtract_ms.push_back(mCurrentFrame.mTimeORB_Ext);
-#endif
 
                 lastID = mCurrentFrame.mnId;
 
@@ -94,6 +97,7 @@ namespace SLAM_Benchmark
              */
             void Track() override
             {
+                SLAM_Benchmark::ThreadRecorder *thread_recorder = SLAM_Benchmark::SystemRecorder::getInstance(SLAM_Benchmark::SystemName::ORB_SLAM3)->getThreadRecorder("Tracking");
 
                 if (bStepByStep)
                 {
@@ -101,6 +105,8 @@ namespace SLAM_Benchmark
                         usleep(500);
                     mbStep = false;
                 }
+
+                thread_recorder->recordSubprocessStart("Track");
 
                 // Step 1 如局部建图里认为IMU有问题，重置当前活跃地图
                 if (mpLocalMapper->mbBadImu)
@@ -176,17 +182,8 @@ namespace SLAM_Benchmark
                 // Step 4 IMU模式且没有创建地图的情况下对IMU数据进行预积分
                 if ((mSensor == ORB_SLAM3::System::IMU_MONOCULAR || mSensor == ORB_SLAM3::System::IMU_STEREO) && !mbCreatedMap)
                 {
-#ifdef REGISTER_TIMES
-                    std::chrono::steady_clock::time_point time_StartPreIMU = std::chrono::steady_clock::now();
-#endif
                     // IMU数据进行预积分
                     PreintegrateIMU();
-#ifdef REGISTER_TIMES
-                    std::chrono::steady_clock::time_point time_EndPreIMU = std::chrono::steady_clock::now();
-
-                    double timePreImu = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(time_EndPreIMU - time_StartPreIMU).count();
-                    vdIMUInteg_ms.push_back(timePreImu);
-#endif
                 }
                 mbCreatedMap = false;
 
@@ -243,10 +240,6 @@ namespace SLAM_Benchmark
                     // System is initialized. Track Frame.
                     // Step 6 系统成功初始化，下面是具体跟踪过程
                     bool bOK;
-
-#ifdef REGISTER_TIMES
-                    std::chrono::steady_clock::time_point time_StartPosePred = std::chrono::steady_clock::now();
-#endif
 
                     // Initial camera pose estimation using motion model or relocalization (if tracking is lost)
                     // mbOnlyTracking等于false表示正常SLAM模式（定位+地图更新），mbOnlyTracking等于true表示仅定位模式
@@ -487,17 +480,6 @@ namespace SLAM_Benchmark
                     if (!mCurrentFrame.mpReferenceKF)
                         mCurrentFrame.mpReferenceKF = mpReferenceKF;
 
-#ifdef REGISTER_TIMES
-                    std::chrono::steady_clock::time_point time_EndPosePred = std::chrono::steady_clock::now();
-
-                    double timePosePred = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(time_EndPosePred - time_StartPosePred).count();
-                    vdPosePred_ms.push_back(timePosePred);
-#endif
-
-#ifdef REGISTER_TIMES
-                    std::chrono::steady_clock::time_point time_StartLMTrack = std::chrono::steady_clock::now();
-#endif
-
                     // Step 7 在跟踪得到当前帧初始姿态后，现在对local map进行跟踪得到更多的匹配，并优化当前位姿
                     // 前面只是跟踪一帧得到初始位姿，这里搜索局部关键帧、局部地图点，和当前帧进行投影匹配，得到更多匹配的MapPoints后进行Pose优化
                     // 在帧间匹配得到初始的姿态后，现在对local map进行跟踪得到更多的匹配，并优化当前位姿
@@ -601,13 +583,6 @@ namespace SLAM_Benchmark
                         }
                     }
 
-#ifdef REGISTER_TIMES
-                    std::chrono::steady_clock::time_point time_EndLMTrack = std::chrono::steady_clock::now();
-
-                    double timeLMTrack = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(time_EndLMTrack - time_StartLMTrack).count();
-                    vdLMTrack_ms.push_back(timeLMTrack);
-#endif
-
                     // Update drawer
                     // 更新显示线程中的图像、特征点、地图点等信息
                     mpFrameDrawer->Update(this);
@@ -674,9 +649,6 @@ namespace SLAM_Benchmark
                         // 不能够直接执行这个是因为其中存储的都是指针,之前的操作都是为了避免内存泄露
                         mlpTemporalPoints.clear();
 
-#ifdef REGISTER_TIMES
-                        std::chrono::steady_clock::time_point time_StartNewKF = std::chrono::steady_clock::now();
-#endif
                         // 判断是否需要插入关键帧
                         bool bNeedKF = NeedNewKeyFrame();
 
@@ -688,13 +660,6 @@ namespace SLAM_Benchmark
                         if (bNeedKF && (bOK || (mState == RECENTLY_LOST && (mSensor == ORB_SLAM3::System::IMU_MONOCULAR || mSensor == ORB_SLAM3::System::IMU_STEREO))))
                             // 创建关键帧，对于双目或RGB-D会产生新的地图点
                             CreateNewKeyFrame();
-
-#ifdef REGISTER_TIMES
-                        std::chrono::steady_clock::time_point time_EndNewKF = std::chrono::steady_clock::now();
-
-                        double timeNewKF = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(time_EndNewKF - time_StartNewKF).count();
-                        vdNewKF_ms.push_back(timeNewKF);
-#endif
 
                         // We allow points with high innovation (considererd outliers by the Huber Function)
                         // pass to the new keyframe, so that bundle adjustment will finally decide
@@ -772,6 +737,8 @@ namespace SLAM_Benchmark
                         mlbLost.push_back(mState == LOST);
                     }
                 }
+                
+                thread_recorder->recordSubprocessStop("Track");
             }
         };
     }

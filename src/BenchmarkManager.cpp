@@ -130,8 +130,8 @@ namespace SLAM_Benchmark
         local_mapper_recorder->createSubprocess("SearchInNeighbors");
         local_mapper_recorder->createSubprocess("LocalBundleAdjustment");
         local_mapper_recorder->createSubprocess("KeyFrameCulling");
-        loop_closing_recorder->createSubprocess("DetectLoop");
-        loop_closing_recorder->createSubprocess("ComputeSim3");
+        loop_closing_recorder->createSubprocess("DetectLoop&ComputeSim3");
+        loop_closing_recorder->createSubprocess("MergeMap");
         loop_closing_recorder->createSubprocess("SearchAndFuse");
         loop_closing_recorder->createSubprocess("OptimizeEssentialGraph");
         bundle_adjustment_recorder->createSubprocess("FullBundleAdjustment");

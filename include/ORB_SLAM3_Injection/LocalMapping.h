@@ -3,6 +3,9 @@
 #include "ORB_SLAM3_detailed_comments/include/LocalMapping.h"
 #include "ORB_SLAM3_detailed_comments/include/Optimizer.h"
 
+#include "ThreadRecorder.h"
+#include "SystemRecorder.h"
+
 namespace SLAM_Benchmark
 {
     namespace ORB_SLAM3_Inject
@@ -14,6 +17,9 @@ namespace SLAM_Benchmark
 
             void Run() override
             {
+                SLAM_Benchmark::ThreadRecorder *thread_recorder = SLAM_Benchmark::SystemRecorder::getInstance(SLAM_Benchmark::SystemName::ORB_SLAM3)->getThreadRecorder("LocalMapping");
+
+                thread_recorder->recordThreadCreate();
 
                 // 标记状态，表示当前run函数正在运行，尚未结束
                 mbFinished = false;
@@ -30,51 +36,38 @@ namespace SLAM_Benchmark
                     if (CheckNewKeyFrames() && !mbBadImu)
                     {
 
-#ifdef REGISTER_TIMES
-                        double timeLBA_ms = 0;
-                        double timeKFCulling_ms = 0;
+                        thread_recorder->recordThreadProcessStart();
 
-                        std::chrono::steady_clock::time_point time_StartProcessKF = std::chrono::steady_clock::now();
-#endif
+                        thread_recorder->recordSubprocessStart("ProcessNewKeyFrame");
                         // BoW conversion and insertion in Map
                         // Step 2 处理列表中的关键帧，包括计算BoW、更新观测、描述子、共视图，插入到地图等
                         ProcessNewKeyFrame();
-#ifdef REGISTER_TIMES
-                        std::chrono::steady_clock::time_point time_EndProcessKF = std::chrono::steady_clock::now();
+                        thread_recorder->recordSubprocessStop("ProcessNewKeyFrame");
 
-                        double timeProcessKF = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(time_EndProcessKF - time_StartProcessKF).count();
-                        vdKFInsert_ms.push_back(timeProcessKF);
-#endif
+                        thread_recorder->recordSubprocessStart("MapPointCulling");
                         // Check recent MapPoints
                         // Step 3 根据地图点的观测情况剔除质量不好的地图点
                         MapPointCulling();
-#ifdef REGISTER_TIMES
-                        std::chrono::steady_clock::time_point time_EndMPCulling = std::chrono::steady_clock::now();
+                        thread_recorder->recordSubprocessStop("MapPointCulling");
 
-                        double timeMPCulling = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(time_EndMPCulling - time_EndProcessKF).count();
-                        vdMPCulling_ms.push_back(timeMPCulling);
-#endif
+                        thread_recorder->recordSubprocessStart("CreateNewMapPoints");
                         // Triangulate new MapPoints
                         // Step 4 当前关键帧与相邻关键帧通过三角化产生新的地图点，使得跟踪更稳
                         CreateNewMapPoints();
+                        thread_recorder->recordSubprocessStop("CreateNewMapPoints");
 
                         mbAbortBA = false; // 注意orbslam2中放在了函数SearchInNeighbors（用到了mbAbortBA）后面，应该放这里更合适
                                            // 已经处理完队列中的最后的一个关键帧
                         if (!CheckNewKeyFrames())
                         {
+                            thread_recorder->recordSubprocessStart("SearchInNeighbors");
                             // Find more matches in neighbor keyframes and fuse point duplications
                             //  Step 5 检查并融合当前关键帧与相邻关键帧帧（两级相邻）中重复的地图点
                             // 先完成相邻关键帧与当前关键帧的地图点的融合（在相邻关键帧中查找当前关键帧的地图点），
                             // 再完成当前关键帧与相邻关键帧的地图点的融合（在当前关键帧中查找当前相邻关键帧的地图点）
                             SearchInNeighbors();
+                            thread_recorder->recordSubprocessStop("SearchInNeighbors");
                         }
-
-#ifdef REGISTER_TIMES
-                        std::chrono::steady_clock::time_point time_EndMPCreation = std::chrono::steady_clock::now();
-
-                        double timeMPCreation = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(time_EndMPCreation - time_EndMPCulling).count();
-                        vdMPCreation_ms.push_back(timeMPCreation);
-#endif
 
                         bool b_doneLBA = false;
                         int num_FixedKF_BA = 0;
@@ -84,6 +77,7 @@ namespace SLAM_Benchmark
                         // 已经处理完队列中的最后的一个关键帧，并且闭环检测没有请求停止LocalMapping
                         if (!CheckNewKeyFrames() && !stopRequested())
                         {
+                            thread_recorder->recordSubprocessStart("LocalBundleAdjustment");
                             // 当前地图中关键帧数目大于2个
                             if (mpAtlas->KeyFramesInMap() > 2)
                             {
@@ -126,26 +120,7 @@ namespace SLAM_Benchmark
                                     b_doneLBA = true;
                                 }
                             }
-#ifdef REGISTER_TIMES
-                            std::chrono::steady_clock::time_point time_EndLBA = std::chrono::steady_clock::now();
-
-                            if (b_doneLBA)
-                            {
-                                timeLBA_ms = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(time_EndLBA - time_EndMPCreation).count();
-                                vdLBASync_ms.push_back(timeLBA_ms);
-
-                                nLBA_exec += 1;
-                                if (mbAbortBA)
-                                {
-                                    nLBA_abort += 1;
-                                }
-                                vnLBA_edges.push_back(num_edges_BA);
-                                vnLBA_KFopt.push_back(num_OptKF_BA);
-                                vnLBA_KFfixed.push_back(num_FixedKF_BA);
-                                vnLBA_MPs.push_back(num_MPs_BA);
-                            }
-
-#endif
+                            thread_recorder->recordSubprocessStop("LocalBundleAdjustment");
 
                             // Initialize IMU here
                             // Step 7 当前关键帧所在地图未完成IMU初始化（第一阶段）
@@ -159,18 +134,14 @@ namespace SLAM_Benchmark
                                     InitializeIMU(1e2, 1e5, true);
                             }
 
+                            thread_recorder->recordSubprocessStart("KeyFrameCulling");
                             // Check redundant local Keyframes
                             // 跟踪中关键帧插入条件比较松，交给LocalMapping线程的关键帧会比较密，这里再删除冗余
                             // Step 8 检测并剔除当前帧相邻的关键帧中冗余的关键帧
                             // 冗余的判定：该关键帧的90%的地图点可以被其它关键帧观测到
                             KeyFrameCulling();
+                            thread_recorder->recordSubprocessStop("KeyFrameCulling");
 
-#ifdef REGISTER_TIMES
-                            std::chrono::steady_clock::time_point time_EndKFCulling = std::chrono::steady_clock::now();
-
-                            timeKFCulling_ms = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(time_EndKFCulling - time_EndLBA).count();
-                            vdKFCullingSync_ms.push_back(timeKFCulling_ms);
-#endif
                             // Step 9 如果距离IMU第一阶段初始化成功累计时间差小于100s，进行VIBA
                             if ((mTinit < 100.0f) && mbInertial)
                             {
@@ -233,20 +204,11 @@ namespace SLAM_Benchmark
                             }
                         }
 
-#ifdef REGISTER_TIMES
-                        vdLBA_ms.push_back(timeLBA_ms);
-                        vdKFCulling_ms.push_back(timeKFCulling_ms);
-#endif
 
                         // Step 10 将当前帧加入到闭环检测队列中
                         mpLoopCloser->InsertKeyFrame(mpCurrentKeyFrame);
 
-#ifdef REGISTER_TIMES
-                        std::chrono::steady_clock::time_point time_EndLocalMap = std::chrono::steady_clock::now();
-
-                        double timeLocalMap = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(time_EndLocalMap - time_StartProcessKF).count();
-                        vdLMTotal_ms.push_back(timeLocalMap);
-#endif
+                        thread_recorder->recordThreadProcessStop();
                     }
                     else if (Stop() && !mbBadImu) // 当要终止当前线程的时候
                     {
@@ -278,6 +240,8 @@ namespace SLAM_Benchmark
 
                 // 设置线程已经终止
                 SetFinish();
+
+                thread_recorder->recordThreadDestory();
             }
         };
     }
