@@ -18,6 +18,10 @@ ADD_DEFINITIONS(-D_EuRoC_TimeStamps_PATH=\"${PROJECT_SOURCE_DIR}/third_party/ORB
 # define cuda option
 option(USE_CUDA "Use Cuda." OFF)
 
+find_package(OpenCV 3 REQUIRED)
+
+message(WARNING "OpenCV_VERSION: ${OpenCV_VERSION}")
+
 # ---------------- include nlohmann_json ----------------
 # disable JSON library's tests
 set(JSON_BuildTests
@@ -49,6 +53,11 @@ set(ORB_SLAM3_COMPILE
 add_subdirectory(third_party/ORB_SLAM3_detailed_comments)
 # ---------------- include orb_slam3 ----------------
 
+# --------------- include VINS-Course ---------------
+# specify the directory
+add_subdirectory(third_party/VINS-Course)
+# --------------- include VINS-Course ---------------
+
 include_directories(
 ${PROJECT_SOURCE_DIR}/include
 ${PROJECT_SOURCE_DIR}/third_party
@@ -60,6 +69,11 @@ SYSTEM ${PROJECT_SOURCE_DIR}/third_party/ORB_SLAM3_detailed_comments/include/Cam
 SYSTEM ${PROJECT_SOURCE_DIR}/third_party/ORB_SLAM2_detailed_comments
 SYSTEM ${PROJECT_SOURCE_DIR}/third_party/ORB_SLAM3_detailed_comments
 SYSTEM ${EIGEN3_INCLUDE_DIR}
+SYSTEM ${PROJECT_SOURCE_DIR}/third_party/VINS-Course/include
+SYSTEM ${EIGEN3_INCLUDE_DIR}
+SYSTEM ${CERES_INCLUDE_DIRS}
+SYSTEM ${Pangolin_INCLUDE_DIRS}
+SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
@@ -129,3 +143,7 @@ target_link_libraries(ORB_SLAM3_KITTI PRIVATE SLAMBenchmarkLib ORB_SLAM2 ORB_SLA
 add_executable(ORB_SLAM3_TUM test/ORB_SLAM3_TUM.cpp)
 
 target_link_libraries(ORB_SLAM3_TUM PRIVATE SLAMBenchmarkLib ORB_SLAM2 ORB_SLAM3 LibThreadRecorder)
+
+add_executable(TestVINS test/TestVINS.cpp)
+
+target_link_libraries(TestVINS PRIVATE MyVio)

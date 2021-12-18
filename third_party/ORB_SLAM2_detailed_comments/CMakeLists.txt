@@ -41,6 +41,8 @@ if(NOT OpenCV_FOUND)
    endif()
 endif()
 
+message(WARNING "ORB_SLAM2 OpenCV_VERSION: ${OpenCV_VERSION}")
+
 find_package(Eigen3 3.1.0 REQUIRED)
 find_package(Pangolin REQUIRED)
 
