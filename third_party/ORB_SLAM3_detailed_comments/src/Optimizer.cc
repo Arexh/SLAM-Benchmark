@@ -5391,7 +5391,7 @@ void Optimizer::LocalBundleAdjustment(KeyFrame *pMainKF, vector<KeyFrame *> vpAd
         if (pKFi->isBad() || pKFi->GetMap() != pCurrentMap)
             continue;
 
-        pKFi->mnBALocalForKF = pMainKF->mnId; // 防止重复添加
+        pKFi->mnBALocalForMerge = pMainKF->mnId; // 防止重复添加
 
         g2o::VertexSE3Expmap *vSE3 = new g2o::VertexSE3Expmap();
         vSE3->setEstimate(Converter::toSE3Quat(pKFi->GetPose()));
