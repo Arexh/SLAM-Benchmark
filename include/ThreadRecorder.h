@@ -43,5 +43,7 @@ namespace SLAM_Benchmark
         void createSubprocess(const string &process_name);
 
         nlohmann::ordered_json summary();
+
+        nlohmann::ordered_json rawValue();
     };
 }

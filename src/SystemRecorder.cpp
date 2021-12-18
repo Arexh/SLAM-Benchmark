@@ -103,9 +103,9 @@ namespace SLAM_Benchmark
         nlohmann::ordered_json thread_values;
         for (auto it = m_thread_map.begin(); it != m_thread_map.end(); it++)
         {
-            thread_values[it->first] = it->second->m_time_meter.getValueList();
+            thread_values[it->first] = it->second->rawValue();
         }
-        values["ThreadTimeInterval"] = thread_values;
+        values["Threads"] = thread_values;
         summary["RawValues"] = values;
 
         return summary;

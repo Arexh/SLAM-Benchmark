@@ -15,16 +15,16 @@ namespace SLAM_Benchmark
 
         static const std::string ORB_SLAM3_VOC_PATH;
 
-        static const std::map<DatasetName, std::string> ORB_SLAM2_SETTING_MAP;
+        static const std::string EuRoC_TimeStamps_PATH;
 
-        static const std::map<DatasetName, std::string> ORB_SLAM3_SETTING_MAP;
+        static const std::string ORB_SLAM2_SETTING_PATH;
 
-        static void benchmark_ORB_SLAM2(DatasetName dataset_name, const std::string dataset_path, bool use_viewr);
+        static const std::string ORB_SLAM3_SETTING_PATH;
 
-        static void benchmark_ORB_SLAM3(DatasetName dataset_name, const std::string dataset_path, bool use_viewer);
+        static void benchmark_ORB_SLAM2(DatasetName dataset_name, const std::string dataset_path, const std::string setting_path, bool use_viewr, const std::string sequence = "");
 
-        static DatasetLoader *createDatasetLoader(DatasetName dataset_name, const std::string &dataset_path);
+        static void benchmark_ORB_SLAM3(DatasetName dataset_name, const std::string dataset_path, const std::string setting_path, bool use_viewer, const std::string sequence = "");
 
-        static ORB_SLAM2::System *createSystem(SystemName system_name, DatasetName dataset_name, bool use_viewer);
+        static DatasetLoader *createDatasetLoader(DatasetName dataset_name, const std::string &dataset_path, const std::string &sequence = "");
     };
 }

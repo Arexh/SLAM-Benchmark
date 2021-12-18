@@ -19,13 +19,13 @@ namespace SLAM_Benchmark
 
     const std::string BenchmarkManager::ORB_SLAM3_VOC_PATH = _ORB_SLAM3_VOC_PATH;
 
-    const std::map<DatasetName, std::string> BenchmarkManager::ORB_SLAM2_SETTING_MAP = {
-        {DatasetName::TUM, _ORB_SLAM2_TUM_SETTING_PATH}};
+    const std::string BenchmarkManager::EuRoC_TimeStamps_PATH = _EuRoC_TimeStamps_PATH;
 
-    const std::map<DatasetName, std::string> BenchmarkManager::ORB_SLAM3_SETTING_MAP = {
-        {DatasetName::TUM, _ORB_SLAM3_TUM_SETTING_PATH}};
+    const std::string BenchmarkManager::ORB_SLAM2_SETTING_PATH = _ORB_SLAM2_SETTING_PATH;
 
-    void BenchmarkManager::benchmark_ORB_SLAM2(DatasetName dataset_name, const std::string dataset_path, bool use_viewr)
+    const std::string BenchmarkManager::ORB_SLAM3_SETTING_PATH = _ORB_SLAM3_SETTING_PATH;
+
+    void BenchmarkManager::benchmark_ORB_SLAM2(DatasetName dataset_name, const std::string dataset_path, const std::string setting_path, bool use_viewer, const std::string sequence)
     {
         /* init recorders */
         SLAM_Benchmark::SystemRecorder *system_recorder = SLAM_Benchmark::SystemRecorder::getInstance(SLAM_Benchmark::SystemName::ORB_SLAM2);
@@ -49,13 +49,16 @@ namespace SLAM_Benchmark
         loop_closing_recorder->createSubprocess("ComputeSim3");
         loop_closing_recorder->createSubprocess("SearchAndFuse");
         loop_closing_recorder->createSubprocess("OptimizeEssentialGraph");
-        bundle_adjustment_recorder->createSubprocess("FullBundleAdjustment");
+        bundle_adjustment_recorder->createSubprocess("GlobalBundleAdjustemnt");
         bundle_adjustment_recorder->createSubprocess("MapUpdate");
         /* init recorders */
 
         system_recorder->recordSystemStart();
-        DatasetLoader *dataset_loader = createDatasetLoader(dataset_name, dataset_path);
-        ORB_SLAM2::System *slam_system = createSystem(SLAM_Benchmark::SystemName::ORB_SLAM2, dataset_name, use_viewr);
+        DatasetLoader *dataset_loader = createDatasetLoader(dataset_name, dataset_path, sequence);
+        ORB_SLAM2::System *slam_system = new SLAM_Benchmark::ORB_SLAM2_Inject::System(ORB_SLAM2_VOC_PATH,
+                                                                                      ORB_SLAM2_SETTING_PATH + "/" + setting_path,
+                                                                                      ORB_SLAM2::System::eSensor::MONOCULAR,
+                                                                                      use_viewer);
         // create and start the recorder
 
         SLAM_Benchmark::ThreadRecorder *publish_recorder = new SLAM_Benchmark::ThreadRecorder("Publish");
@@ -100,17 +103,17 @@ namespace SLAM_Benchmark
 
         cout << system_recorder->summary() << endl;
 
-        std::ofstream o("orb_slam2.json");
+        std::ofstream o(std::string("orb_slam2_" + std::string(ToString(dataset_name)) + ".json").c_str());
         o << std::setw(4) << system_recorder->summary() << std::endl;
         o.close();
-        cout << "Save summary to orb_slam2.json" << endl;
+        cout << "Save summary to " << std::string("orb_slam2_" + std::string(ToString(dataset_name)) + ".json") << endl;
 
         delete system_recorder;
         delete dataset_loader;
-        delete slam_system;
+        // delete slam_system;
     }
 
-    void BenchmarkManager::benchmark_ORB_SLAM3(DatasetName dataset_name, const std::string dataset_path, bool use_viewr)
+    void BenchmarkManager::benchmark_ORB_SLAM3(DatasetName dataset_name, const std::string dataset_path, const std::string setting_path, bool use_viewer, const std::string sequence)
     {
         /* init recorders */
         SLAM_Benchmark::SystemRecorder *system_recorder = SLAM_Benchmark::SystemRecorder::getInstance(SLAM_Benchmark::SystemName::ORB_SLAM3);
@@ -134,16 +137,16 @@ namespace SLAM_Benchmark
         loop_closing_recorder->createSubprocess("MergeMap");
         loop_closing_recorder->createSubprocess("SearchAndFuse");
         loop_closing_recorder->createSubprocess("OptimizeEssentialGraph");
-        bundle_adjustment_recorder->createSubprocess("FullBundleAdjustment");
+        bundle_adjustment_recorder->createSubprocess("GlobalBundleAdjustemnt");
         bundle_adjustment_recorder->createSubprocess("MapUpdate");
         /* init recorders */
 
         system_recorder->recordSystemStart();
-        DatasetLoader *dataset_loader = createDatasetLoader(dataset_name, dataset_path);
+        DatasetLoader *dataset_loader = createDatasetLoader(dataset_name, dataset_path, sequence);
         SLAM_Benchmark::ORB_SLAM3_Inject::System *slam_system = new SLAM_Benchmark::ORB_SLAM3_Inject::System(ORB_SLAM3_VOC_PATH,
-                                                                                                             ORB_SLAM3_SETTING_MAP.at(dataset_name),
+                                                                                                             ORB_SLAM3_SETTING_PATH + "/" + setting_path,
                                                                                                              ORB_SLAM3::System::eSensor::MONOCULAR,
-                                                                                                             use_viewr);
+                                                                                                             use_viewer);
         // create and start the recorder
 
         SLAM_Benchmark::ThreadRecorder *publish_recorder = new SLAM_Benchmark::ThreadRecorder("Publish");
@@ -188,17 +191,17 @@ namespace SLAM_Benchmark
 
         cout << system_recorder->summary() << endl;
 
-        std::ofstream o("orb_slam3.json");
+        std::ofstream o(std::string("orb_slam3_" + std::string(ToString(dataset_name)) + ".json").c_str());
         o << std::setw(4) << system_recorder->summary() << std::endl;
         o.close();
-        cout << "Save summary to orb_slam3.json" << endl;
+        cout << "Save summary to " << std::string("orb_slam3_" + std::string(ToString(dataset_name)) + ".json") << endl;
 
         delete system_recorder;
         delete dataset_loader;
         delete slam_system;
     }
 
-    DatasetLoader *BenchmarkManager::createDatasetLoader(DatasetName dataset_name, const std::string &dataset_path)
+    DatasetLoader *BenchmarkManager::createDatasetLoader(DatasetName dataset_name, const std::string &dataset_path, const std::string &sequence)
     {
         DatasetLoader *dataset_loader;
         switch (dataset_name)
@@ -206,29 +209,15 @@ namespace SLAM_Benchmark
         case DatasetName::TUM:
             dataset_loader = new TUMDatasetLoader(dataset_path);
             break;
+        case DatasetName::EuRoC:
+            dataset_loader = new EuRoCDatasetLoader(dataset_path, EuRoC_TimeStamps_PATH, sequence);
+            break;
+        case DatasetName::KITTI:
+            dataset_loader = new KITTIDatasetLoader(dataset_path);
+            break;
         default:
             dataset_loader = new TUMDatasetLoader(dataset_path);
         }
         return dataset_loader;
-    }
-
-    ORB_SLAM2::System *BenchmarkManager::createSystem(SystemName system_name, DatasetName dataset_name, bool use_viewer)
-    {
-        ORB_SLAM2::System *system;
-        switch (system_name)
-        {
-        case SystemName::ORB_SLAM2:
-            system = new SLAM_Benchmark::ORB_SLAM2_Inject::System(ORB_SLAM2_VOC_PATH,
-                                                                  ORB_SLAM2_SETTING_MAP.at(dataset_name),
-                                                                  ORB_SLAM2::System::eSensor::MONOCULAR,
-                                                                  use_viewer);
-            break;
-        default:
-            system = new SLAM_Benchmark::ORB_SLAM2_Inject::System(ORB_SLAM2_VOC_PATH,
-                                                                  ORB_SLAM2_SETTING_MAP.at(dataset_name),
-                                                                  ORB_SLAM2::System::eSensor::MONOCULAR,
-                                                                  use_viewer);
-        }
-        return system;
     }
 }

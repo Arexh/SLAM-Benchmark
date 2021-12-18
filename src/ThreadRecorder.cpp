@@ -69,6 +69,17 @@ namespace SLAM_Benchmark
         return summary;
     }
 
+    nlohmann::ordered_json ThreadRecorder::rawValue()
+    {
+        nlohmann::ordered_json raw_value = {};
+        raw_value["ProcessTime"] = m_time_meter.getValueList();
+        for (unsigned int i = 0; i < m_insert_order.size(); i++)
+        {
+            raw_value[m_insert_order[i]] = m_subprocess_meter[m_insert_order[i]]->getValueList();
+        }
+        return raw_value;
+    }
+
     // copy from: https://stackoverflow.com/questions/44916362/how-can-i-measure-cpu-time-of-a-specific-set-of-threads
     struct timespec getThreadTime()
     {

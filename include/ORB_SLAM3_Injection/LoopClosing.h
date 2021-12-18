@@ -562,6 +562,8 @@ namespace SLAM_Benchmark
             {
                 SLAM_Benchmark::ThreadRecorder *thread_recorder = SLAM_Benchmark::SystemRecorder::getInstance(SLAM_Benchmark::SystemName::ORB_SLAM3)->getThreadRecorder("BundleAdjustment");
 
+                cout << "BundleAdjustment!!!!!!!!!" << endl;
+
                 thread_recorder->recordThreadProcessStart();
 
                 ORB_SLAM3::Verbose::PrintMess("Starting Global Bundle Adjustment", ORB_SLAM3::Verbose::VERBOSITY_NORMAL);

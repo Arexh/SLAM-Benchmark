@@ -9,12 +9,12 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 # define the path of ORB_SLAM2's setting and vocabulary
 ADD_DEFINITIONS(-D_ORB_SLAM2_VOC_PATH=\"${PROJECT_SOURCE_DIR}/third_party/ORB_SLAM2_detailed_comments/Vocabulary/ORBvoc.txt\")
-ADD_DEFINITIONS(-D_ORB_SLAM2_TUM_SETTING_PATH=\"${PROJECT_SOURCE_DIR}/third_party/ORB_SLAM2_detailed_comments/Examples/Monocular/TUM1.yaml\")
-ADD_DEFINITIONS(-D_ORB_SLAM2_EuRoC_SETTING_PATH=\"${PROJECT_SOURCE_DIR}/third_party/ORB_SLAM2_detailed_comments/Examples/Monocular/EuRoC.yaml\")
+ADD_DEFINITIONS(-D_ORB_SLAM2_SETTING_PATH=\"${PROJECT_SOURCE_DIR}/third_party/ORB_SLAM2_detailed_comments/Examples/Monocular\")
 # define the path of ORB_SLAM3's setting and vocabulary
 ADD_DEFINITIONS(-D_ORB_SLAM3_VOC_PATH=\"${PROJECT_SOURCE_DIR}/third_party/ORB_SLAM3_detailed_comments/Vocabulary/ORBvoc.txt\")
-ADD_DEFINITIONS(-D_ORB_SLAM3_TUM_SETTING_PATH=\"${PROJECT_SOURCE_DIR}/third_party/ORB_SLAM3_detailed_comments/Examples/Monocular/TUM1.yaml\")
-ADD_DEFINITIONS(-D_ORB_SLAM3_EuRoC_SETTING_PATH=\"${PROJECT_SOURCE_DIR}/third_party/ORB_SLAM3_detailed_comments/Examples/Monocular/EuRoC.yaml\")
+ADD_DEFINITIONS(-D_ORB_SLAM3_SETTING_PATH=\"${PROJECT_SOURCE_DIR}/third_party/ORB_SLAM3_detailed_comments/Examples/Monocular\")
+# define EuRoC mh05 timestamps path
+ADD_DEFINITIONS(-D_EuRoC_TimeStamps_PATH=\"${PROJECT_SOURCE_DIR}/third_party/ORB_SLAM2_detailed_comments/Examples/Monocular/EuRoC_TimeStamps\")
 # define cuda option
 option(USE_CUDA "Use Cuda." OFF)
 
@@ -106,10 +106,26 @@ add_executable(testSystemRecorder test/TestSystemRecorder.cpp)
 target_link_libraries(testSystemRecorder SLAMBenchmarkLib -lpthread -lpython2.7
                       -lboost_system nlohmann_json::nlohmann_json LibThreadRecorder)
 
-add_executable(testORBSLAM2 test/TestORBSLAM2.cpp)
+add_executable(ORB_SLAM2_EuRoC test/ORB_SLAM2_EuRoC.cpp)
 
-target_link_libraries(testORBSLAM2 PRIVATE SLAMBenchmarkLib ORB_SLAM2 ORB_SLAM3 LibThreadRecorder)
+target_link_libraries(ORB_SLAM2_EuRoC PRIVATE SLAMBenchmarkLib ORB_SLAM2 ORB_SLAM3 LibThreadRecorder)
 
-add_executable(testORBSLAM3 test/TestORBSLAM3.cpp)
+add_executable(ORB_SLAM2_KITTI test/ORB_SLAM2_KITTI.cpp)
 
-target_link_libraries(testORBSLAM3 PRIVATE SLAMBenchmarkLib ORB_SLAM2 ORB_SLAM3 LibThreadRecorder)
+target_link_libraries(ORB_SLAM2_KITTI PRIVATE SLAMBenchmarkLib ORB_SLAM2 ORB_SLAM3 LibThreadRecorder)
+
+add_executable(ORB_SLAM2_TUM test/ORB_SLAM2_TUM.cpp)
+
+target_link_libraries(ORB_SLAM2_TUM PRIVATE SLAMBenchmarkLib ORB_SLAM2 ORB_SLAM3 LibThreadRecorder)
+
+add_executable(ORB_SLAM3_EuRoC test/ORB_SLAM3_EuRoC.cpp)
+
+target_link_libraries(ORB_SLAM3_EuRoC PRIVATE SLAMBenchmarkLib ORB_SLAM2 ORB_SLAM3 LibThreadRecorder)
+
+add_executable(ORB_SLAM3_KITTI test/ORB_SLAM3_KITTI.cpp)
+
+target_link_libraries(ORB_SLAM3_KITTI PRIVATE SLAMBenchmarkLib ORB_SLAM2 ORB_SLAM3 LibThreadRecorder)
+
+add_executable(ORB_SLAM3_TUM test/ORB_SLAM3_TUM.cpp)
+
+target_link_libraries(ORB_SLAM3_TUM PRIVATE SLAMBenchmarkLib ORB_SLAM2 ORB_SLAM3 LibThreadRecorder)
