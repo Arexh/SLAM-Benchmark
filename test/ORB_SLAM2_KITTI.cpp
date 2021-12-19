@@ -21,7 +21,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    BenchmarkManager::benchmark_ORB_SLAM2(DatasetName::KITTI, argv[1], "KITTI00-02.yaml", true);
+    BenchmarkManager::benchmark_ORB_SLAM2(DatasetName::KITTI, argv[1], "KITTI00-02.yaml", false);
 
     return 0;
 }

@@ -21,7 +21,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    BenchmarkManager::benchmark_ORB_SLAM3(DatasetName::EuRoC, argv[1], "EuRoC.yaml", true, "MH05");
+    BenchmarkManager::benchmark_ORB_SLAM3(DatasetName::EuRoC, argv[1], "EuRoC.yaml", false, "MH05");
 
     return 0;
 }

@@ -21,7 +21,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    BenchmarkManager::benchmark_ORB_SLAM3(DatasetName::TUM, argv[1], "TUM1.yaml", true);
+    BenchmarkManager::benchmark_ORB_SLAM3(DatasetName::TUM, argv[1], "TUM1.yaml", false);
 
     return 0;
 }
