@@ -5,6 +5,7 @@
 #include "ORB_SLAM3_Injection/System.h"
 #include "ORB_SLAM3_Injection/LoopClosing.h"
 #include "ORB_SLAM3_Injection/LocalMapping.h"
+#include "VINS_Course_Injection/System.h"
 #include "Utility.h"
 
 #include "ORB_SLAM3_detailed_comments/include/System.h"
@@ -24,6 +25,8 @@ namespace SLAM_Benchmark
     const std::string BenchmarkManager::ORB_SLAM2_SETTING_PATH = _ORB_SLAM2_SETTING_PATH;
 
     const std::string BenchmarkManager::ORB_SLAM3_SETTING_PATH = _ORB_SLAM3_SETTING_PATH;
+
+    const std::string BenchmarkManager::PROJECT_DIR = std::string(_EuRoC_TimeStamps_PATH) + std::string("/../../../../../");
 
     void BenchmarkManager::benchmark_ORB_SLAM2(DatasetName dataset_name, const std::string dataset_path, const std::string setting_path, bool use_viewer, const std::string sequence)
     {
@@ -100,8 +103,6 @@ namespace SLAM_Benchmark
         system_recorder->recordSystemStop();
         system_recorder->addPublishRecord(publish_recorder);
         tracking_recorder->recordThreadDestory();
-
-        cout << system_recorder->summary() << endl;
 
         std::ofstream o(std::string("orb_slam2_" + std::string(ToString(dataset_name)) + ".json").c_str());
         o << std::setw(4) << system_recorder->summary() << std::endl;
@@ -189,8 +190,6 @@ namespace SLAM_Benchmark
         system_recorder->addPublishRecord(publish_recorder);
         tracking_recorder->recordThreadDestory();
 
-        cout << system_recorder->summary() << endl;
-
         std::ofstream o(std::string("orb_slam3_" + std::string(ToString(dataset_name)) + ".json").c_str());
         o << std::setw(4) << system_recorder->summary() << std::endl;
         o.close();
@@ -199,6 +198,38 @@ namespace SLAM_Benchmark
         delete system_recorder;
         delete dataset_loader;
         delete slam_system;
+    }
+
+    void BenchmarkManager::benchmark_VINS_Course(DatasetName dataset_name, const std::string dataset_path, const std::string setting_path, bool use_viewer, const std::string sequence)
+    {
+        SLAM_Benchmark::SystemRecorder *system_recorder = SLAM_Benchmark::SystemRecorder::getInstance(SLAM_Benchmark::SystemName::VINS_Course);
+
+        SLAM_Benchmark::ThreadRecorder *publish_recorder = new SLAM_Benchmark::ThreadRecorder("Publish");
+
+        system_recorder->addPublishRecord(publish_recorder);
+
+        system_recorder->recordSystemStart();
+
+        SLAM_Benchmark::VINS_Course_Inject::VINSSystem* system = new SLAM_Benchmark::VINS_Course_Inject::VINSSystem(PROJECT_DIR, dataset_path);
+
+        std::thread thd_BackEnd(&SLAM_Benchmark::VINS_Course_Inject::VINSSystem::ProcessBackEnd, system);
+
+        std::thread thd_PubImuData(&SLAM_Benchmark::VINS_Course_Inject::VINSSystem::PubImuDataCopy, system);
+
+        std::thread thd_PubImageData(&SLAM_Benchmark::VINS_Course_Inject::VINSSystem::PubImageDataCopy, system);
+
+        thd_PubImuData.join();
+	    thd_PubImageData.join();
+        thd_BackEnd.detach();
+
+        system_recorder->recordSystemStop();
+
+        std::ofstream o(std::string("vins_course_" + std::string(ToString(dataset_name)) + ".json").c_str());
+        o << std::setw(4) << system_recorder->summary() << std::endl;
+        o.close();
+        cout << "Save summary to " << std::string("vins_course_" + std::string(ToString(dataset_name)) + ".json") << endl;
+
+        delete system_recorder;
     }
 
     DatasetLoader *BenchmarkManager::createDatasetLoader(DatasetName dataset_name, const std::string &dataset_path, const std::string &sequence)

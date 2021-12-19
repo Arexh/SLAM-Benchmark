@@ -52,7 +52,7 @@ public:
         const Eigen::Vector3d &vAcc);
 
     // thread: visual-inertial odometry
-    void ProcessBackEnd();
+    virtual void ProcessBackEnd();
     void Draw();
     
     pangolin::OpenGlRenderState s_cam;
@@ -65,7 +65,7 @@ public:
     void DrawGLFrame();
 #endif
 
-private:
+protected:
 
     //feature tracker
     std::vector<uchar> r_status;

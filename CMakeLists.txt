@@ -97,6 +97,7 @@ ${Pangolin_LIBRARIES}
 -lcrypto
 DBoW2
 g2o
+MyVio
 )
 
 target_link_libraries(SLAMBenchmarkLib)
@@ -147,3 +148,7 @@ target_link_libraries(ORB_SLAM3_TUM PRIVATE SLAMBenchmarkLib ORB_SLAM2 ORB_SLAM3
 add_executable(TestVINS test/TestVINS.cpp)
 
 target_link_libraries(TestVINS PRIVATE MyVio)
+
+add_executable(VINS_Course_EuRoC test/VINS_Course_EuRoc.cpp)
+
+target_link_libraries(VINS_Course_EuRoC PRIVATE SLAMBenchmarkLib ORB_SLAM2 ORB_SLAM3 LibThreadRecorder MyVio)

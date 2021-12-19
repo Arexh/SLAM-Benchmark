@@ -66,6 +66,8 @@ namespace SLAM_Benchmark
 
         void addPublishRecord(ThreadRecorder *publish_record);
 
+        ThreadRecorder *getPublishRecord();
+
         nlohmann::ordered_json summary();
     };
 }

@@ -44,6 +44,11 @@ namespace SLAM_Benchmark
         m_publish_record = publish_recorder;
     }
 
+    ThreadRecorder* SystemRecorder::getPublishRecord()
+    {
+        return m_publish_record;
+    }
+
     nlohmann::ordered_json SystemRecorder::summary()
     {
         nlohmann::ordered_json summary = {
