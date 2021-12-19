@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.13)
 project(slam_benchmark)
 
 set(CMAKE_BUILD_TYPE "Release")
-set(CMAKE_CXX_FLAGS "-std=c++11 -I/usr/include/python2.7")
+set(CMAKE_CXX_FLAGS "-std=c++11")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wall -g")
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
@@ -58,10 +58,18 @@ add_subdirectory(third_party/ORB_SLAM3_detailed_comments)
 add_subdirectory(third_party/VINS-Course)
 # --------------- include VINS-Course ---------------
 
+# -------------- include orb_slam2_cuba -------- -----
+# disable executable
+set(ORB_SLAM2_CUBA_EXECUTABLE
+    OFF
+    CACHE INTERNAL "")
+# specify the directory
+add_subdirectory(third_party/ORB_SLAM2_CUBA)
+# -------------- include orb_slam2_cuba --------------
+
 include_directories(
 ${PROJECT_SOURCE_DIR}/include
 ${PROJECT_SOURCE_DIR}/third_party
-${PROJECT_SOURCE_DIR}/third_party/matplotlib-cpp/
 SYSTEM ${PROJECT_SOURCE_DIR}/third_party/nlohmann_json/include
 SYSTEM ${PROJECT_SOURCE_DIR}/third_party/ORB_SLAM2_detailed_comments/include
 SYSTEM ${PROJECT_SOURCE_DIR}/third_party/ORB_SLAM3_detailed_comments/include
@@ -99,17 +107,30 @@ DBoW2
 g2o
 )
 
+target_link_libraries(ORB_SLAM2_CUBA
+${OpenCV_LIBS}
+${EIGEN3_LIBS}
+${Pangolin_LIBRARIES}
+-lboost_serialization
+-lcrypto
+DBoW2
+g2o
+${PROJECT_SOURCE_DIR}/third_party/ORB_SLAM2_CUBA/lib/libcuda_bundle_adjustment.so
+/usr/local/cuda/lib64/libcusparse.so
+/usr/local/cuda/lib64/libcusolver.so
+)
+
 target_link_libraries(SLAMBenchmarkLib)
 
 add_executable(systemInfoSummary test/SystemInfoSummary.cpp)
 
-target_link_libraries(systemInfoSummary SLAMBenchmarkLib -lpthread -lpython2.7
+target_link_libraries(systemInfoSummary SLAMBenchmarkLib -lpthread
                       -lboost_system nlohmann_json::nlohmann_json LibThreadRecorder)
 
 add_executable(testSystemInfoManager test/TestSystemInfoManager.cpp)
 
 target_link_libraries(testSystemInfoManager SLAMBenchmarkLib -lpthread
-                      -lpython2.7 -lboost_system nlohmann_json::nlohmann_json LibThreadRecorder)
+                     -lboost_system nlohmann_json::nlohmann_json LibThreadRecorder)
 
 add_executable(testJSON test/TestJSON.cpp)
 
@@ -117,33 +138,46 @@ target_link_libraries(testJSON PRIVATE nlohmann_json::nlohmann_json LibThreadRec
 
 add_executable(testSystemRecorder test/TestSystemRecorder.cpp)
 
-target_link_libraries(testSystemRecorder SLAMBenchmarkLib -lpthread -lpython2.7
+target_link_libraries(testSystemRecorder SLAMBenchmarkLib -lpthread
                       -lboost_system nlohmann_json::nlohmann_json LibThreadRecorder)
 
 add_executable(ORB_SLAM2_EuRoC test/ORB_SLAM2_EuRoC.cpp)
 
-target_link_libraries(ORB_SLAM2_EuRoC PRIVATE SLAMBenchmarkLib ORB_SLAM2 ORB_SLAM3 LibThreadRecorder)
+target_link_libraries(ORB_SLAM2_EuRoC PRIVATE SLAMBenchmarkLib ORB_SLAM2 ORB_SLAM3 ORB_SLAM2_CUBA LibThreadRecorder)
 
 add_executable(ORB_SLAM2_KITTI test/ORB_SLAM2_KITTI.cpp)
 
-target_link_libraries(ORB_SLAM2_KITTI PRIVATE SLAMBenchmarkLib ORB_SLAM2 ORB_SLAM3 LibThreadRecorder)
+target_link_libraries(ORB_SLAM2_KITTI PRIVATE SLAMBenchmarkLib ORB_SLAM2 ORB_SLAM3 ORB_SLAM2_CUBA LibThreadRecorder)
 
 add_executable(ORB_SLAM2_TUM test/ORB_SLAM2_TUM.cpp)
 
-target_link_libraries(ORB_SLAM2_TUM PRIVATE SLAMBenchmarkLib ORB_SLAM2 ORB_SLAM3 LibThreadRecorder)
+target_link_libraries(ORB_SLAM2_TUM PRIVATE SLAMBenchmarkLib ORB_SLAM2 ORB_SLAM3 ORB_SLAM2_CUBA LibThreadRecorder)
 
 add_executable(ORB_SLAM3_EuRoC test/ORB_SLAM3_EuRoC.cpp)
 
-target_link_libraries(ORB_SLAM3_EuRoC PRIVATE SLAMBenchmarkLib ORB_SLAM2 ORB_SLAM3 LibThreadRecorder)
+target_link_libraries(ORB_SLAM3_EuRoC PRIVATE SLAMBenchmarkLib ORB_SLAM2 ORB_SLAM3 ORB_SLAM2_CUBA LibThreadRecorder)
 
 add_executable(ORB_SLAM3_KITTI test/ORB_SLAM3_KITTI.cpp)
 
-target_link_libraries(ORB_SLAM3_KITTI PRIVATE SLAMBenchmarkLib ORB_SLAM2 ORB_SLAM3 LibThreadRecorder)
+target_link_libraries(ORB_SLAM3_KITTI PRIVATE SLAMBenchmarkLib ORB_SLAM2 ORB_SLAM3 ORB_SLAM2_CUBA LibThreadRecorder)
 
 add_executable(ORB_SLAM3_TUM test/ORB_SLAM3_TUM.cpp)
 
-target_link_libraries(ORB_SLAM3_TUM PRIVATE SLAMBenchmarkLib ORB_SLAM2 ORB_SLAM3 LibThreadRecorder)
+target_link_libraries(ORB_SLAM3_TUM PRIVATE SLAMBenchmarkLib ORB_SLAM2 ORB_SLAM3 ORB_SLAM2_CUBA LibThreadRecorder)
 
 add_executable(TestVINS test/TestVINS.cpp)
 
 target_link_libraries(TestVINS PRIVATE MyVio)
+
+
+add_executable(ORB_SLAM2_CUBA_EuRoC test/ORB_SLAM2_CUBA_EuRoC.cpp)
+
+target_link_libraries(ORB_SLAM2_CUBA_EuRoC PRIVATE SLAMBenchmarkLib ORB_SLAM2 ORB_SLAM3 ORB_SLAM2_CUBA LibThreadRecorder)
+
+add_executable(ORB_SLAM2_CUBA_KITTI test/ORB_SLAM2_CUBA_KITTI.cpp)
+
+target_link_libraries(ORB_SLAM2_CUBA_KITTI PRIVATE SLAMBenchmarkLib ORB_SLAM2 ORB_SLAM3 ORB_SLAM2_CUBA LibThreadRecorder)
+
+add_executable(ORB_SLAM2_CUBA_TUM test/ORB_SLAM2_CUBA_TUM.cpp)
+
+target_link_libraries(ORB_SLAM2_CUBA_TUM PRIVATE SLAMBenchmarkLib ORB_SLAM2 ORB_SLAM3 ORB_SLAM2_CUBA LibThreadRecorder)

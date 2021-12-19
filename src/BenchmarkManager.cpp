@@ -2,6 +2,9 @@
 #include "ORB_SLAM2_Injection/System.h"
 #include "ORB_SLAM2_Injection/LoopClosing.h"
 #include "ORB_SLAM2_Injection/LocalMapping.h"
+#include "ORB_SLAM2_CUBA_Injection/System.h"
+#include "ORB_SLAM2_CUBA_Injection/LoopClosing.h"
+#include "ORB_SLAM2_CUBA_Injection/LocalMapping.h"
 #include "ORB_SLAM3_Injection/System.h"
 #include "ORB_SLAM3_Injection/LoopClosing.h"
 #include "ORB_SLAM3_Injection/LocalMapping.h"
@@ -199,6 +202,94 @@ namespace SLAM_Benchmark
         delete system_recorder;
         delete dataset_loader;
         delete slam_system;
+    }
+
+    void BenchmarkManager::benchmark_ORB_SLAM2_CUBA(DatasetName dataset_name, const std::string dataset_path, const std::string setting_path, bool use_viewer, const std::string sequence)
+    {
+        /* init recorders */
+        SLAM_Benchmark::SystemRecorder *system_recorder = SLAM_Benchmark::SystemRecorder::getInstance(SLAM_Benchmark::SystemName::ORB_SLAM2_CUBA);
+        SLAM_Benchmark::ThreadRecorder *tracking_recorder = new SLAM_Benchmark::ThreadRecorder("Tracking");
+        SLAM_Benchmark::ThreadRecorder *local_mapper_recorder = new SLAM_Benchmark::ThreadRecorder("LocalMapping");
+        SLAM_Benchmark::ThreadRecorder *loop_closing_recorder = new SLAM_Benchmark::ThreadRecorder("LoopClosing");
+        SLAM_Benchmark::ThreadRecorder *bundle_adjustment_recorder = new SLAM_Benchmark::ThreadRecorder("BundleAdjustment");
+        system_recorder->addThreadRecord(tracking_recorder);
+        system_recorder->addThreadRecord(local_mapper_recorder);
+        system_recorder->addThreadRecord(loop_closing_recorder);
+        system_recorder->addThreadRecord(bundle_adjustment_recorder);
+        tracking_recorder->createSubprocess("ORBExtraction");
+        tracking_recorder->createSubprocess("Track");
+        local_mapper_recorder->createSubprocess("ProcessNewKeyFrame");
+        local_mapper_recorder->createSubprocess("MapPointCulling");
+        local_mapper_recorder->createSubprocess("CreateNewMapPoints");
+        local_mapper_recorder->createSubprocess("SearchInNeighbors");
+        local_mapper_recorder->createSubprocess("LocalBundleAdjustment");
+        local_mapper_recorder->createSubprocess("KeyFrameCulling");
+        loop_closing_recorder->createSubprocess("DetectLoop");
+        loop_closing_recorder->createSubprocess("ComputeSim3");
+        loop_closing_recorder->createSubprocess("SearchAndFuse");
+        loop_closing_recorder->createSubprocess("OptimizeEssentialGraph");
+        bundle_adjustment_recorder->createSubprocess("GlobalBundleAdjustemnt");
+        bundle_adjustment_recorder->createSubprocess("MapUpdate");
+        /* init recorders */
+
+        system_recorder->recordSystemStart();
+        DatasetLoader *dataset_loader = createDatasetLoader(dataset_name, dataset_path, sequence);
+        ORB_SLAM2_CUBA::System *slam_system = new SLAM_Benchmark::ORB_SLAM2_CUBA_Inject::System("/home/zyc/slam/SLAM-Benchmark/third_party/ORB_SLAM2_CUBA/Vocabulary/ORBvoc.txt",
+                                                                                            "/home/zyc/slam/SLAM-Benchmark/third_party/ORB_SLAM2_CUBA/Examples/Monocular/" + setting_path,
+                                                                                            ORB_SLAM2_CUBA::System::eSensor::MONOCULAR,
+                                                                                            use_viewer);
+        // create and start the recorder
+
+        SLAM_Benchmark::ThreadRecorder *publish_recorder = new SLAM_Benchmark::ThreadRecorder("Publish");
+
+        vector<double> time_stamp = dataset_loader->getTimestamp();
+        int image_num = dataset_loader->getSize();
+
+        cout << endl
+             << "-------" << endl;
+        cout << "Start processing sequence ..." << endl;
+        cout << "Images in the sequence: " << image_num << endl
+             << endl;
+
+        tracking_recorder->recordThreadCreate();
+        cv::Mat image;
+        for (int i = 0; i < image_num; i++)
+        {
+            tracking_recorder->recordThreadProcessStart();
+            // Read image from file
+            double tframe = time_stamp[i];
+
+            if (!dataset_loader->loadImage(i, image))
+            {
+                return;
+            }
+
+            publish_recorder->recordThreadProcessStart();
+
+            // Pass the image to the SLAM system
+            slam_system->TrackMonocular(image, tframe);
+
+            publish_recorder->recordThreadProcessStop();
+
+            tracking_recorder->recordThreadProcessStop();
+        }
+
+        // Stop all threads
+        slam_system->Shutdown();
+        system_recorder->recordSystemStop();
+        system_recorder->addPublishRecord(publish_recorder);
+        tracking_recorder->recordThreadDestory();
+
+        cout << system_recorder->summary() << endl;
+
+        std::ofstream o(std::string("orb_slam2_cuba_" + std::string(ToString(dataset_name)) + ".json").c_str());
+        o << std::setw(4) << system_recorder->summary() << std::endl;
+        o.close();
+        cout << "Save summary to " << std::string("orb_slam2_cuba_" + std::string(ToString(dataset_name)) + ".json") << endl;
+
+        // delete system_recorder;
+        // delete dataset_loader;
+        // delete slam_system;
     }
 
     DatasetLoader *BenchmarkManager::createDatasetLoader(DatasetName dataset_name, const std::string &dataset_path, const std::string &sequence)

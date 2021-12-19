@@ -23,6 +23,8 @@ namespace SLAM_Benchmark
 
         static void benchmark_ORB_SLAM2(DatasetName dataset_name, const std::string dataset_path, const std::string setting_path, bool use_viewr, const std::string sequence = "");
 
+        static void benchmark_ORB_SLAM2_CUBA(DatasetName dataset_name, const std::string dataset_path, const std::string setting_path, bool use_viewr, const std::string sequence = ""); 
+
         static void benchmark_ORB_SLAM3(DatasetName dataset_name, const std::string dataset_path, const std::string setting_path, bool use_viewer, const std::string sequence = "");
 
         static DatasetLoader *createDatasetLoader(DatasetName dataset_name, const std::string &dataset_path, const std::string &sequence = "");
