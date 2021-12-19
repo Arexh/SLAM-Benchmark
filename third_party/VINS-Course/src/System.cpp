@@ -31,7 +31,7 @@ System::~System()
 {
     bStart_backend = false;
     
-    pangolin::QuitAll();
+    // pangolin::QuitAll();
     
     m_buf.lock();
     while (!feature_buf.empty())
