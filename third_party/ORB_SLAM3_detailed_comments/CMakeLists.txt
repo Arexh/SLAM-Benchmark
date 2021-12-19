@@ -55,6 +55,9 @@ find_package(Eigen3 3.1.0 REQUIRED)
 find_package(Pangolin REQUIRED)
 find_package(realsense2)
 
+
+add_subdirectory(Thirdparty/g2o)
+
 if (ORB_SLAM3_COMPILE)
 
   # ---------------- include g2o ----------------
