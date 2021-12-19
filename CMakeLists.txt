@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.13)
 project(slam_benchmark)
 
 set(CMAKE_BUILD_TYPE "Release")
-set(CMAKE_CXX_FLAGS "-std=c++11 -I/usr/include/python2.7")
+set(CMAKE_CXX_FLAGS "-std=c++11")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wall -g")
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
@@ -61,7 +61,6 @@ add_subdirectory(third_party/VINS-Course)
 include_directories(
 ${PROJECT_SOURCE_DIR}/include
 ${PROJECT_SOURCE_DIR}/third_party
-${PROJECT_SOURCE_DIR}/third_party/matplotlib-cpp/
 SYSTEM ${PROJECT_SOURCE_DIR}/third_party/nlohmann_json/include
 SYSTEM ${PROJECT_SOURCE_DIR}/third_party/ORB_SLAM2_detailed_comments/include
 SYSTEM ${PROJECT_SOURCE_DIR}/third_party/ORB_SLAM3_detailed_comments/include
@@ -104,13 +103,13 @@ target_link_libraries(SLAMBenchmarkLib)
 
 add_executable(systemInfoSummary test/SystemInfoSummary.cpp)
 
-target_link_libraries(systemInfoSummary SLAMBenchmarkLib -lpthread -lpython2.7
+target_link_libraries(systemInfoSummary SLAMBenchmarkLib -lpthread
                       -lboost_system nlohmann_json::nlohmann_json LibThreadRecorder)
 
 add_executable(testSystemInfoManager test/TestSystemInfoManager.cpp)
 
 target_link_libraries(testSystemInfoManager SLAMBenchmarkLib -lpthread
-                      -lpython2.7 -lboost_system nlohmann_json::nlohmann_json LibThreadRecorder)
+                      -lboost_system nlohmann_json::nlohmann_json LibThreadRecorder)
 
 add_executable(testJSON test/TestJSON.cpp)
 
@@ -118,7 +117,7 @@ target_link_libraries(testJSON PRIVATE nlohmann_json::nlohmann_json LibThreadRec
 
 add_executable(testSystemRecorder test/TestSystemRecorder.cpp)
 
-target_link_libraries(testSystemRecorder SLAMBenchmarkLib -lpthread -lpython2.7
+target_link_libraries(testSystemRecorder SLAMBenchmarkLib -lpthread
                       -lboost_system nlohmann_json::nlohmann_json LibThreadRecorder)
 
 add_executable(ORB_SLAM2_EuRoC test/ORB_SLAM2_EuRoC.cpp)

@@ -6,9 +6,6 @@
 #include <iostream>
 #include <bits/stdc++.h>
 #include <nlohmann/json.hpp>
-#include "matplotlibcpp.h"
-
-namespace plt = matplotlibcpp;
 
 void anotherSimpleTask(SLAM_Benchmark::ThreadRecorder *record, SLAM_Benchmark::ThreadRecorder *publish_record)
 {
@@ -57,11 +54,11 @@ int main()
     vector<int> x = {};
     for (long unsigned int i = 0; i < y.size(); i++)
         x.push_back(i + 1);
-    plt::named_plot("Publish Time", x, y);
-    plt::legend();
-    plt::xlabel("Image");
-    plt::ylabel("Millisecond");
-    plt::save("test.png", 400);
+    // plt::named_plot("Publish Time", x, y);
+    // plt::legend();
+    // plt::xlabel("Image");
+    // plt::ylabel("Millisecond");
+    // plt::save("test.png", 400);
 
     return 0;
 }

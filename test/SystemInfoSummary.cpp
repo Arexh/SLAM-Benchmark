@@ -1,7 +1,6 @@
 #include "SystemInfoManager.h"
 #include "Utility.h"
 #include "stdio.h"
-#include "matplotlibcpp.h"
 
 using namespace SLAM_Benchmark;
 
