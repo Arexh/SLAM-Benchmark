@@ -77,11 +77,11 @@ namespace SLAM_Benchmark
         }
         if (SystemInfoManager::isSOCPowerAvailable())
         {
-            summary["SOCPower"] = m_info_record->soc_power_meter.summaryStatistics();
+            summary["TotalPower"] = m_info_record->soc_power_meter.summaryStatistics();
         }
         else
         {
-            summary["SOCPower"] = "Unavailable";
+            summary["TotalPower"] = "Unavailable";
         }
 
         nlohmann::ordered_json thread_info;
@@ -98,8 +98,9 @@ namespace SLAM_Benchmark
         values["CPU"] = m_info_record->cpu_percent_meter.getValueList();
         values["VirtualMemory"] = m_info_record->virtual_memory_meter.getValueList();
         values["PhysicalMemory"] = m_info_record->physical_memory_meter.getValueList();
-        values["GPU"] = m_info_record->gpu_power_meter.getValueList();
-        values["SOC"] = m_info_record->soc_power_meter.getValueList();
+        values["CPUPower"] = m_info_record->cpu_power_meter.getValueList();
+        values["GPUPower"] = m_info_record->gpu_power_meter.getValueList();
+        values["TotalPower"] = m_info_record->soc_power_meter.getValueList();
         nlohmann::ordered_json thread_values;
         for (auto it = m_thread_map.begin(); it != m_thread_map.end(); it++)
         {

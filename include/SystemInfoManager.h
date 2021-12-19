@@ -24,9 +24,6 @@ namespace SLAM_Benchmark
         static SystemInfoRecord* m_history_record;
         static std::thread m_record_thread;
         static std::atomic_bool m_thread_flag;
-        static bool m_cpu_power_available;
-        static bool m_gpu_power_available;
-        static bool m_soc_power_available;
 
         static void recordInfo();
 

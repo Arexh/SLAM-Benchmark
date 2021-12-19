@@ -21,12 +21,6 @@ namespace SLAM_Benchmark
 
     atomic_bool SystemInfoManager::m_thread_flag;
 
-    bool SystemInfoManager::m_cpu_power_available = SystemInfo::getCurrentCPUPower() != -1;
-
-    bool SystemInfoManager::m_gpu_power_available = SystemInfo::getCurrentGPUPower() != -1;
-
-    bool SystemInfoManager::m_soc_power_available = SystemInfo::getCurrentSOCPower() != -1;
-
     void SystemInfoManager::printAvailableInfoSummary()
     {
         cout << "Summary of available system infomations" << endl;
@@ -73,27 +67,27 @@ namespace SLAM_Benchmark
         m_history_record->cpu_percent_meter.update(SystemInfo::getCurrentProcessCPUPercent());
         m_history_record->virtual_memory_meter.update(SystemInfo::getCurrentProcessVirtualMemoryUsed());
         m_history_record->physical_memory_meter.update(SystemInfo::getCurrentProcessPhysicalMemoryUsed());
-        if (m_cpu_power_available)
+        if (isCPUPowerAvailable())
             m_history_record->cpu_power_meter.update(SystemInfo::getCurrentCPUPower());
-        if (m_gpu_power_available)
+        if (isGPUPowerAvailable())
             m_history_record->gpu_power_meter.update(SystemInfo::getCurrentGPUPower());
-        if (m_soc_power_available)
+        if (isSOCPowerAvailable())
             m_history_record->soc_power_meter.update(SystemInfo::getCurrentSOCPower());
     }
 
     bool SystemInfoManager::isCPUPowerAvailable()
     {
-        return m_cpu_power_available;
+        return SystemInfo::getCurrentCPUPower() != -1;
     }
 
     bool SystemInfoManager::isGPUPowerAvailable()
     {
-        return m_gpu_power_available;
+        return SystemInfo::getCurrentGPUPower() != -1;
     }
 
     bool SystemInfoManager::isSOCPowerAvailable()
     {
-        return m_soc_power_available;
+        return SystemInfo::getCurrentSOCPower() != -1;
     }
 }
 
