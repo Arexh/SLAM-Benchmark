@@ -144,10 +144,10 @@ add_executable(ORB_SLAM3_TUM test/ORB_SLAM3_TUM.cpp)
 
 target_link_libraries(ORB_SLAM3_TUM PRIVATE SLAMBenchmarkLib ORB_SLAM2 ORB_SLAM3 LibThreadRecorder)
 
-add_executable(TestVINS test/TestVINS.cpp)
+# add_executable(TestVINS test/TestVINS.cpp)
 
-target_link_libraries(TestVINS PRIVATE MyVio)
+# target_link_libraries(TestVINS PRIVATE MyVio)
 
-add_executable(VINS_Course_EuRoC test/VINS_Course_EuRoc.cpp)
+# add_executable(VINS_Course_EuRoC test/VINS_Course_EuRoc.cpp)
 
-target_link_libraries(VINS_Course_EuRoC PRIVATE SLAMBenchmarkLib ORB_SLAM2 ORB_SLAM3 LibThreadRecorder MyVio)
+# target_link_libraries(VINS_Course_EuRoC PRIVATE SLAMBenchmarkLib ORB_SLAM2 ORB_SLAM3 LibThreadRecorder MyVio)

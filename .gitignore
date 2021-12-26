@@ -9,3 +9,4 @@ KeyFrameTrajectory.txt
 core
 /*.json
 pose_output*
+*keyframe*

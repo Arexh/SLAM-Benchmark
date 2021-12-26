@@ -109,6 +109,8 @@ namespace SLAM_Benchmark
         o.close();
         cout << "Save summary to " << std::string("orb_slam2_" + std::string(ToString(dataset_name)) + ".json") << endl;
 
+        slam_system->SaveKeyFrameTrajectoryTUM("orb_slam2_" + std::string(ToString(dataset_name)) + "_keyframe.txt");
+
         delete system_recorder;
         delete dataset_loader;
         // delete slam_system;
@@ -194,6 +196,8 @@ namespace SLAM_Benchmark
         o << std::setw(4) << system_recorder->summary() << std::endl;
         o.close();
         cout << "Save summary to " << std::string("orb_slam3_" + std::string(ToString(dataset_name)) + ".json") << endl;
+
+        slam_system->SaveKeyFrameTrajectoryTUM("orb_slam3_" + std::string(ToString(dataset_name)) + "_keyframe.txt");
 
         delete system_recorder;
         delete dataset_loader;
