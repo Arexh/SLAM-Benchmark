@@ -155,14 +155,14 @@ if __name__ == "__main__":
                         worksheet.write(start_index + KEY2ROW[info] * 4, file_count + 3, "{:.4f}".format(infos[info]))
                     else:
                         avg_time = abs(infos[info]['avg']) / (10.0e6 if info in TIME_ATTRIBUTES else 1.0)
-                        avg_time = abs(infos[info]['avg']) / (10.0e3 if info in SIZE_ATTRIBUTES else 1.0)
+                        avg_time = abs(avg_time) / (10.0e3 if info in SIZE_ATTRIBUTES else 1.0)
                         avg_time = simplify("{:.8f}".format(avg_time))
                         std_time = abs(infos[info]['std']) / (10.0e6 if info in TIME_ATTRIBUTES else 1.0)
-                        std_time = abs(infos[info]['std']) / (10.0e3 if info in SIZE_ATTRIBUTES else 1.0)
+                        std_time = abs(std_time) / (10.0e3 if info in SIZE_ATTRIBUTES else 1.0)
                         std_time = simplify("{:.8f}".format(std_time))
                         count = str(infos[info]['count'])
                         sum_val = abs(infos[info]['sum']) / (10.0e6 if info in TIME_ATTRIBUTES else 1.0)
-                        sum_val = abs(infos[info]['sum']) / (10.0e3 if info in SIZE_ATTRIBUTES else 1.0)
+                        sum_val = abs(sum_val) / (10.0e3 if info in SIZE_ATTRIBUTES else 1.0)
                         sum_val = simplify("{:.8f}".format(sum_val))
                         offset = -3 if info in PERFORMANCE_ATTRIBUTES else 0
                         worksheet.write(start_index + KEY2ROW[info] * 4 + offset, file_count + 3, avg_time)
