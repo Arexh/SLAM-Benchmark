@@ -1,0 +1,35 @@
+{
+    "Tasks": [
+        {
+            "SystemName": "ORB_SLAM2",
+            "Dataset": "TUM",
+            "DatasetPath": "/dataset/TUM/rgbd_dataset_freiburg1_xyz"
+        },
+        {
+            "SystemName": "ORB_SLAM2",
+            "Dataset": "EuRoC",
+            "DatasetPath": "/dataset/EuRoc/MH05"
+        },
+        {
+            "SystemName": "ORB_SLAM2",
+            "Dataset": "KITTI",
+            "DatasetPath": "/dataset/KITTI/00"
+        },
+
+        {
+            "SystemName": "ORB_SLAM3",
+            "Dataset": "TUM",
+            "DatasetPath": "/dataset/TUM/rgbd_dataset_freiburg1_xyz"
+        },
+        {
+            "SystemName": "ORB_SLAM3",
+            "Dataset": "EuRoC",
+            "DatasetPath": "/dataset/EuRoc/MH05"
+        },
+        {
+            "SystemName": "ORB_SLAM3",
+            "Dataset": "KITTI",
+            "DatasetPath": "/dataset/KITTI/00"
+        }
+    ]
+}

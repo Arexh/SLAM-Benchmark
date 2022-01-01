@@ -111,43 +111,17 @@ add_executable(testSystemInfoManager test/TestSystemInfoManager.cpp)
 target_link_libraries(testSystemInfoManager SLAMBenchmarkLib -lpthread
                       -lboost_system nlohmann_json::nlohmann_json LibThreadRecorder)
 
-add_executable(testJSON test/TestJSON.cpp)
-
-target_link_libraries(testJSON PRIVATE nlohmann_json::nlohmann_json LibThreadRecorder)
-
 add_executable(testSystemRecorder test/TestSystemRecorder.cpp)
 
 target_link_libraries(testSystemRecorder SLAMBenchmarkLib -lpthread
                       -lboost_system nlohmann_json::nlohmann_json LibThreadRecorder)
 
-add_executable(ORB_SLAM2_EuRoC test/ORB_SLAM2_EuRoC.cpp)
+add_executable(SingleBenchmark test/SingleBenchmark.cpp)
 
-target_link_libraries(ORB_SLAM2_EuRoC PRIVATE SLAMBenchmarkLib ORB_SLAM2 ORB_SLAM3 LibThreadRecorder)
+target_link_libraries(SingleBenchmark -lboost_system SLAMBenchmarkLib
+                      nlohmann_json::nlohmann_json ORB_SLAM2 ORB_SLAM3 LibThreadRecorder)
 
-add_executable(ORB_SLAM2_KITTI test/ORB_SLAM2_KITTI.cpp)
+add_executable(SLAMBenchmark test/SLAMBenchmark.cpp)
 
-target_link_libraries(ORB_SLAM2_KITTI PRIVATE SLAMBenchmarkLib ORB_SLAM2 ORB_SLAM3 LibThreadRecorder)
-
-add_executable(ORB_SLAM2_TUM test/ORB_SLAM2_TUM.cpp)
-
-target_link_libraries(ORB_SLAM2_TUM PRIVATE SLAMBenchmarkLib ORB_SLAM2 ORB_SLAM3 LibThreadRecorder)
-
-add_executable(ORB_SLAM3_EuRoC test/ORB_SLAM3_EuRoC.cpp)
-
-target_link_libraries(ORB_SLAM3_EuRoC PRIVATE SLAMBenchmarkLib ORB_SLAM2 ORB_SLAM3 LibThreadRecorder)
-
-add_executable(ORB_SLAM3_KITTI test/ORB_SLAM3_KITTI.cpp)
-
-target_link_libraries(ORB_SLAM3_KITTI PRIVATE SLAMBenchmarkLib ORB_SLAM2 ORB_SLAM3 LibThreadRecorder)
-
-add_executable(ORB_SLAM3_TUM test/ORB_SLAM3_TUM.cpp)
-
-target_link_libraries(ORB_SLAM3_TUM PRIVATE SLAMBenchmarkLib ORB_SLAM2 ORB_SLAM3 LibThreadRecorder)
-
-# add_executable(TestVINS test/TestVINS.cpp)
-
-# target_link_libraries(TestVINS PRIVATE MyVio)
-
-# add_executable(VINS_Course_EuRoC test/VINS_Course_EuRoc.cpp)
-
-# target_link_libraries(VINS_Course_EuRoC PRIVATE SLAMBenchmarkLib ORB_SLAM2 ORB_SLAM3 LibThreadRecorder MyVio)
+target_link_libraries(SLAMBenchmark -lboost_system SLAMBenchmarkLib
+                      nlohmann_json::nlohmann_json ORB_SLAM2 ORB_SLAM3 LibThreadRecorder)
