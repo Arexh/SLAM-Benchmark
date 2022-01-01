@@ -364,14 +364,14 @@ namespace SLAM_Benchmark
                 // 提问:进行完这个过程后我们能够获得哪些信息?
                 // 回答：能够得到全部关键帧优化后的位姿,以及优化后的地图点
 
-                thread_recorder->recordSubprocessStart("GlobalBundleAdjustemnt");
+                thread_recorder->recordSubprocessStart("GlobalBundleAdjustment");
                 // Step 1 执行全局BA，优化所有的关键帧位姿和地图中地图点
-                ORB_SLAM2::Optimizer::GlobalBundleAdjustemnt(mpMap,      // 地图点对象
+                ORB_SLAM2::Optimizer::GlobalBundleAdjustment(mpMap,      // 地图点对象
                                                              10,         // 迭代次数
                                                              &mbStopGBA, // 外界控制 GBA 停止的标志
                                                              nLoopKF,    // 形成了闭环的当前关键帧的id
                                                              false);     // 不使用鲁棒核函数
-                thread_recorder->recordSubprocessStop("GlobalBundleAdjustemnt");
+                thread_recorder->recordSubprocessStop("GlobalBundleAdjustment");
 
                 // Update all MapPoints and KeyFrames
                 // Local Mapping was active during BA, that means that there might be new keyframes

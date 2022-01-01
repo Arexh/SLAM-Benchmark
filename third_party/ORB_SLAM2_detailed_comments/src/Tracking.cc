@@ -1056,7 +1056,7 @@ void Tracking::CreateInitialMapMonocular()
     cout << "New Map created with " << mpMap->MapPointsInMap() << " points" << endl;
 
     // Step 4 全局BA优化，同时优化所有位姿和三维点
-    Optimizer::GlobalBundleAdjustemnt(mpMap,20);
+    Optimizer::GlobalBundleAdjustment(mpMap,20);
 
     // Set median depth to 1
     // Step 5 取场景的中值深度，用于尺度归一化 

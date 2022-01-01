@@ -975,7 +975,7 @@ void LoopClosing::RunGlobalBundleAdjustment(unsigned long nLoopKF)
     // 回答：能够得到全部关键帧优化后的位姿,以及优化后的地图点
 
     // Step 1 执行全局BA，优化所有的关键帧位姿和地图中地图点
-    Optimizer::GlobalBundleAdjustemnt(mpMap,        // 地图点对象
+    Optimizer::GlobalBundleAdjustment(mpMap,        // 地图点对象
                                       10,           // 迭代次数
                                       &mbStopGBA,   // 外界控制 GBA 停止的标志
                                       nLoopKF,      // 形成了闭环的当前关键帧的id

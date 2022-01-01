@@ -2915,7 +2915,7 @@ void Optimizer::LocalInertialBA(KeyFrame *pKF, bool *pbStopFlag, Map *pMap, int 
  * @param[in] nLoopKF               形成了闭环的当前关键帧的id
  * @param[in] bRobust               是否使用鲁棒核函数
  */
-void Optimizer::GlobalBundleAdjustemnt(Map *pMap, int nIterations, bool *pbStopFlag, const unsigned long nLoopKF, const bool bRobust)
+void Optimizer::GlobalBundleAdjustment(Map *pMap, int nIterations, bool *pbStopFlag, const unsigned long nLoopKF, const bool bRobust)
 {
     // 获取地图中的所有关键帧
     vector<KeyFrame *> vpKFs = pMap->GetAllKeyFrames();
@@ -3326,7 +3326,7 @@ void Optimizer::BundleAdjustment(const vector<KeyFrame *> &vpKFs, const vector<M
 
 /**
  * @brief imu初始化优化，LocalMapping::InitializeIMU中使用 LoopClosing::RunGlobalBundleAdjustment
- * 地图全部做BA。也就是imu版的GlobalBundleAdjustemnt
+ * 地图全部做BA。也就是imu版的GlobalBundleAdjustment
  * @param pMap 地图
  * @param its 迭代次数
  * @param bFixLocal 是否固定局部，为false

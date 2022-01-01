@@ -59,7 +59,7 @@ namespace ORB_SLAM2
  * @param[in] nLoopKF               形成了闭环的当前关键帧的id
  * @param[in] bRobust               是否使用鲁棒核函数
  */
-void Optimizer::GlobalBundleAdjustemnt(Map* pMap, int nIterations, bool* pbStopFlag, const unsigned long nLoopKF, const bool bRobust)
+void Optimizer::GlobalBundleAdjustment(Map* pMap, int nIterations, bool* pbStopFlag, const unsigned long nLoopKF, const bool bRobust)
 {
     // 获取地图中的所有关键帧
     vector<KeyFrame*> vpKFs = pMap->GetAllKeyFrames();

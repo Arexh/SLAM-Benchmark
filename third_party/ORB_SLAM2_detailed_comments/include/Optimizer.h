@@ -83,7 +83,7 @@ public:
      * @param[in] nLoopKF       当前回环关键帧的id，其实也就是参与GBA的关键帧个数
      * @param[in] bRobust       是否使用鲁棒核函数
      */
-    void static GlobalBundleAdjustemnt(Map* pMap, int nIterations=5, bool *pbStopFlag=NULL,
+    void static GlobalBundleAdjustment(Map* pMap, int nIterations=5, bool *pbStopFlag=NULL,
                                        const unsigned long nLoopKF=0, const bool bRobust = true);
 
     

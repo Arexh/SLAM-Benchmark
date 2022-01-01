@@ -2614,7 +2614,7 @@ void LoopClosing::RunGlobalBundleAdjustment(Map* pActiveMap, unsigned long nLoop
 #endif
 
     if(!bImuInit)
-        Optimizer::GlobalBundleAdjustemnt(pActiveMap,10,&mbStopGBA,nLoopKF,false);
+        Optimizer::GlobalBundleAdjustment(pActiveMap,10,&mbStopGBA,nLoopKF,false);
     else
         // 仅有一个地图且内部关键帧<200，并且IMU完成了第一阶段初始化后才会进行下面
         Optimizer::FullInertialBA(pActiveMap,7,false,nLoopKF,&mbStopGBA);
@@ -2628,7 +2628,7 @@ void LoopClosing::RunGlobalBundleAdjustment(Map* pActiveMap, unsigned long nLoop
 
 	// 记录GBA已经迭代次数,用来检查全局BA过程是否是因为意外结束的
     int idx =  mnFullBAIdx;
-    // Optimizer::GlobalBundleAdjustemnt(mpMap,10,&mbStopGBA,nLoopKF,false);
+    // Optimizer::GlobalBundleAdjustment(mpMap,10,&mbStopGBA,nLoopKF,false);
 
     // Update all MapPoints and KeyFrames
     // Local Mapping was active during BA, that means that there might be new keyframes

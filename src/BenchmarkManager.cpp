@@ -52,7 +52,7 @@ namespace SLAM_Benchmark
         loop_closing_recorder->createSubprocess("ComputeSim3");
         loop_closing_recorder->createSubprocess("SearchAndFuse");
         loop_closing_recorder->createSubprocess("OptimizeEssentialGraph");
-        bundle_adjustment_recorder->createSubprocess("GlobalBundleAdjustemnt");
+        bundle_adjustment_recorder->createSubprocess("GlobalBundleAdjustment");
         bundle_adjustment_recorder->createSubprocess("MapUpdate");
         /* init recorders */
 
@@ -140,7 +140,7 @@ namespace SLAM_Benchmark
         loop_closing_recorder->createSubprocess("MergeMap");
         loop_closing_recorder->createSubprocess("SearchAndFuse");
         loop_closing_recorder->createSubprocess("OptimizeEssentialGraph");
-        bundle_adjustment_recorder->createSubprocess("GlobalBundleAdjustemnt");
+        bundle_adjustment_recorder->createSubprocess("GlobalBundleAdjustment");
         bundle_adjustment_recorder->createSubprocess("MapUpdate");
         /* init recorders */
 
