@@ -10,3 +10,4 @@ core
 /*.json
 pose_output*
 *keyframe*
+/*.xlsx
