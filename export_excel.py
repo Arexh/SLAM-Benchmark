@@ -97,7 +97,7 @@ if __name__ == "__main__":
         'align': 'center',
         'valign': 'vcenter'})
 
-    worksheet.set_column(0, 1, 23)
+    worksheet.set_column(0, 1, 26)
 
     worksheet.write(0, 0, 'Attribute', merge_format)
     worksheet.write(0, 1, 'SubAttribute', merge_format)
@@ -111,13 +111,10 @@ if __name__ == "__main__":
 
     start = 2
     for i in range(len(TIME_ATTRIBUTES)):
-        worksheet.merge_range(start + i, 1, start + i + 3, 1, TIME_ATTRIBUTES[i])
+        worksheet.merge_range(start + i, 1, start + i + 3, 1, TIME_ATTRIBUTES[i] + " (ms)")
         start += 3
 
     worksheet.write(58, 1, 'AvgFPS')
-    start = 59
-    for i in range(len(PERFORMANCE_ATTRIBUTES)):
-        start += 3
     worksheet.merge_range(59, 1, 62, 1, 'CPU (%)')
     worksheet.merge_range(63, 1, 66, 1, 'VirtualMemory (mb)')
     worksheet.merge_range(67, 1, 70, 1, 'PhysicalMemory (mb)')
