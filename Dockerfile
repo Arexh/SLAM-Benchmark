@@ -11,6 +11,8 @@ RUN apt-get update && apt-get install -y \
   libssl-dev libboost-all-dev \
   unzip libglew-dev
 
+RUN apt-get install -y python3 python3-pip && pip3 install xlsxwriter -i https://pypi.tuna.tsinghua.edu.cn/simple
+
 WORKDIR /root/
 
 RUN wget https://github.com/Kitware/CMake/releases/download/v3.22.1/cmake-3.22.1.zip\
@@ -28,7 +30,7 @@ RUN wget https://github.com/ceres-solver/ceres-solver/archive/refs/tags/1.14.0.z
 
 RUN wget https://github.com/opencv/opencv/archive/3.4.0.zip && unzip 3.4.0.zip && cd opencv-3.4.0 \
   && mkdir build && cd build && cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/usr/local ..\
-  && make ${MAKE_FLAG} && make install && make clean && rm 3.4.0.zip
+  && make ${MAKE_FLAG} && make install && make clean && rm /root/3.4.0.zip
 
 RUN git clone https://github.com/Arexh/SLAM-Benchmark.git \
   && cd SLAM-Benchmark && mkdir build && cd build \
