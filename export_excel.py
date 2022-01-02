@@ -59,7 +59,7 @@ KEY2ROW = {
 THREADS2SUB = {
     "Tracking": ["Track", "ORBExtraction"],
     "LocalMapping": ["ProcessNewKeyFrame", "MapPointCulling", "CreateNewMapPoints", "SearchInNeighbors", "LocalBundleAdjustment", "KeyFrameCulling"],
-    "LoopClosing": [ "DetectLoop", "ComputeSim3", "SearchAndFuse", "OptimizeEssentialGraph"],
+    "LoopClosing": [ "DetectLoop", "ComputeSim3", "SearchAndFuse", "OptimizeEssentialGraph", "DetectLoop&ComputeSim3"],
     "BundleAdjustment": ["GlobalBundleAdjustment", "MapUpdate"]
 }
 
