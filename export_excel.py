@@ -56,6 +56,13 @@ KEY2ROW = {
     "PhysicalMemory": 17,
 }
 
+THREADS2SUB = {
+    "Tracking": ["Track", "ORBExtraction"],
+    "LocalMapping": ["ProcessNewKeyFrame", "MapPointCulling", "CreateNewMapPoints", "SearchInNeighbors", "LocalBundleAdjustment", "KeyFrameCulling"],
+    "LoopClosing": [ "DetectLoop", "ComputeSim3", "SearchAndFuse", "OptimizeEssentialGraph"],
+    "BundleAdjustment": ["GlobalBundleAdjustment", "MapUpdate"]
+}
+
 TIME_ATTRIBUTES = ["ORBExtraction", "Track", "ProcessNewKeyFrame", "MapPointCulling", "CreateNewMapPoints",
     "SearchInNeighbors", "LocalBundleAdjustment", "KeyFrameCulling", "DetectLoop", "ComputeSim3", "SearchAndFuse",
     "OptimizeEssentialGraph", "GlobalBundleAdjustment", "MapUpdate"]
@@ -108,6 +115,10 @@ if __name__ == "__main__":
     worksheet.merge_range(34, 0, 49, 0, 'LoopClosing', merge_format)
     worksheet.merge_range(50, 0, 57, 0, 'BundleAdjustment', merge_format)
     worksheet.merge_range(58, 0, 70, 0, 'Performance', merge_format)
+    worksheet.write(71, 0, 'Tracking')
+    worksheet.write(72, 0, 'LocalMapping')
+    worksheet.write(73, 0, 'LoopClosing')
+    worksheet.write(74, 0, 'BundleAdjustment')
 
     start = 2
     for i in range(len(TIME_ATTRIBUTES)):
@@ -134,6 +145,7 @@ if __name__ == "__main__":
         worksheet.write(62 + i * 4, 2, "sum")
 
     json_files = [join(sys.argv[1], f) for f in listdir(sys.argv[1]) if f.endswith('.json') and isfile(join(sys.argv[1], f))]
+    json_files.sort()
 
     file_count = 0
     for json_file in json_files:
@@ -175,6 +187,16 @@ if __name__ == "__main__":
                     worksheet.merge_range(36, file_count + 3, 37, file_count + 3, std_time, workbook.add_format({'valign': 'vcenter'}))
                     worksheet.merge_range(38, file_count + 3, 39, file_count + 3, count, workbook.add_format({'valign': 'vcenter'}))
                     worksheet.merge_range(40, file_count + 3, 41, file_count + 3, sum_time, workbook.add_format({'valign': 'vcenter'}))
+            cnt = 0
+            for t in THREADS2SUB:
+                cur_val = 0
+                for sub in THREADS2SUB[t]:
+                    json_content = read_json(content, KEY2LOCATION[sub])
+                    if json_content is None:
+                        continue
+                    cur_val += json_content['sum']
+                worksheet.write(71 + cnt, file_count + 3, cur_val / 10.0e6)
+                cnt += 1
             file_count += 1
     worksheet.set_column(3, 3 + file_count, 25)
     workbook.close()
